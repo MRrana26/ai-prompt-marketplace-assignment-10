@@ -18,6 +18,7 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "PromptVerse",
   description: "Empowering AI creators with a next-generation engineered prompt ecosystem and secured peer-to-peer marketplace.",
+  icons: "/logo.png",
 };
 
 export default function RootLayout({ children }) {
