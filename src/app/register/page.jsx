@@ -1,7 +1,5 @@
 "use client";
 
-import React from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Button,
@@ -18,12 +16,18 @@ import {
 import { Sparkles, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { FcGoogle } from "react-icons/fc";
+import Link from "next/link";
+import { authClient } from "@/lib/auth-client";
+import { useState } from "react";
+
 
 const RegisterPage = () => {
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
+
     const formData = new FormData(e.currentTarget);
     const formValues = Object.fromEntries(formData.entries());
 
@@ -31,15 +35,35 @@ const RegisterPage = () => {
       return toast.error("Please fill in all fields.");
     }
 
+    setIsSubmitting(true);
 
-    const newUser = {
-      ...formValues,
-      role: "user",
-      plan: "free",
-    };
+    try {
 
-    console.log("From Register Form Submit (with Default Config):", newUser);
-    toast.success("Account structure ready! Check console log.");
+      const { data, error } = await authClient.signUp.email({
+        email: formValues.email,
+        name: formValues.name,
+        password: formValues.password,
+        image: formValues.image || "",
+
+        additionalFields: {
+          role: "user",
+          plan: "free",
+        }
+      });
+
+      if (error) {
+        setIsSubmitting(false);
+        return toast.error(error.message || "Registration failed!");
+      }
+
+      if (data) {
+        toast.success("Registration successful!");
+        router.push('/');
+      }
+    } catch (err) {
+      toast.error("Something went wrong. Please try again.");
+      setIsSubmitting(false);
+    }
   };
 
   const handleSignUpGoogle = () => {
@@ -64,7 +88,6 @@ const RegisterPage = () => {
             Join PromptVerse and clear your engineering horizon
           </p>
         </CardHeader>
-
 
         <Form onSubmit={onSubmit} className="flex w-full flex-col gap-5">
           <TextField
@@ -112,6 +135,25 @@ const RegisterPage = () => {
             <FieldError className="text-xs text-red-500 mt-1" />
           </TextField>
 
+          {/* img */}
+          <TextField
+            name="image"
+            type="url"
+            validate={(value) => {
+              if (value && !/^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)$/i.test(value)) {
+                return "Please enter a valid image URL (.jpg, .png, .webp)";
+              }
+              return null;
+            }}
+          >
+            <Label className="text-xs font-medium text-zinc-400 uppercase tracking-wider block mb-1">Photo URL <span className="text-gray-400 font-normal">(Optional)</span></Label>
+            <Input
+              placeholder="https://example.com/photo.jpg"
+              className="bg-zinc-900/50 border border-zinc-800 rounded-xl text-zinc-100" />
+            <Description className="text-xs">Direct image link ending with .jpg, .png, .webp etc.</Description>
+            <FieldError />
+          </TextField>
+
           {/* pass */}
           <TextField
             isRequired
@@ -148,10 +190,18 @@ const RegisterPage = () => {
           {/* btn */}
           <Button
             type="submit"
+            isDisabled={isSubmitting}
             className="w-full flex items-center justify-center gap-2 py-6 bg-linear-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-medium rounded-xl transition-all shadow-lg shadow-purple-500/10 text-sm group mt-2"
           >
-            <span>Submit</span>
-            <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+            {isSubmitting ? (
+              <span>Submitting...</span>
+            ) : (
+              <>
+                <span>Submit</span>
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+              </>
+            )}
+
           </Button>
         </Form>
 
@@ -164,7 +214,6 @@ const RegisterPage = () => {
             <span className="px-3 bg-zinc-950 text-zinc-500 font-mono">OR</span>
           </div>
         </div>
-
 
         {/* google */}
         <Button
