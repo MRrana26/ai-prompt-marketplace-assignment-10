@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -17,12 +17,13 @@ import {
 import { Sparkles, ArrowRight } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
 
 const LoginPage = () => {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
-
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const user = Object.fromEntries(formData.entries());
@@ -31,19 +32,36 @@ const LoginPage = () => {
       return toast.error("Please fill in all fields.");
     }
 
-    console.log("From Login Form Submit:", user);
-    toast.success("Form submitted! Check console log.");
+    try {
+      setIsLoading(true);
+      const { data, error } = await authClient.signIn.email({
+        email: user.email,
+        password: user.password,
+      });
+
+      if (error) {
+        toast.error(error.message || "Invalid email or password");
+        return;
+      }
+
+      toast.success("Welcome back!");
+      router.push("/");
+      router.refresh();
+    } catch (err) {
+      toast.error("Something went wrong. Please try again.");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-
-  const handleSignInGoogle = () => {
-    console.log("Google Sign-In Triggered");
-    toast.success("Google Sign-In Clicked");
+  const handleSignInGoogle = async () => {
+    toast.success('Google SignIn Clicked')
   };
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 relative overflow-hidden">
-
+      
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-600/5 rounded-full blur-[100px] pointer-events-none" />
 
       <Card className="max-w-md w-full bg-zinc-950 p-6 rounded-2xl border border-zinc-900 shadow-xl z-10 text-zinc-100">
@@ -62,6 +80,7 @@ const LoginPage = () => {
         </CardHeader>
 
         <Form onSubmit={onSubmit} className="flex w-full flex-col gap-5">
+          {/* email */}
           <TextField
             isRequired
             name="email"
@@ -84,7 +103,7 @@ const LoginPage = () => {
             <FieldError className="text-xs text-red-500 mt-1" />
           </TextField>
 
-          {/* password */}
+          {/* Password */}
           <TextField
             isRequired
             minLength={6}
@@ -117,12 +136,19 @@ const LoginPage = () => {
             <FieldError className="text-xs text-red-500 mt-1" />
           </TextField>
 
+          {/* btn */}
           <Button
             type="submit"
+            isLoading={isLoading}
+            disabled={isLoading}
             className="w-full flex items-center justify-center gap-2 py-6 bg-linear-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-medium rounded-xl transition-all shadow-lg shadow-purple-500/10 text-sm group mt-2"
           >
-            <span>Sign In</span>
-            <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+            {!isLoading && (
+              <>
+                <span>Sign In</span>
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+              </>
+            )}
           </Button>
         </Form>
 
@@ -136,15 +162,16 @@ const LoginPage = () => {
           </div>
         </div>
 
-        {/* Google*/}
+        {/* Google btn */}
         <Button
           onClick={handleSignInGoogle}
+          disabled={isLoading}
           className="w-full py-6 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white rounded-xl transition-all flex items-center justify-center gap-2"
         >
           <FcGoogle className="text-lg" /> Continue with Google
         </Button>
 
-        {/* register link */}
+        {/* Link */}
         <p className="text-center text-sm text-zinc-500 mt-6">
           Do not have an account?{" "}
           <Link
