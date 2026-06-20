@@ -55,9 +55,19 @@ const LoginPage = () => {
     }
   };
 
-  const handleSignInGoogle = async () => {
-    toast.success('Google SignIn Clicked')
-  };
+  const handleSignUpGoogle = async () => {
+      try {
+        await authClient.signIn.social({
+          provider: "google",
+        });
+        toast.success("Google Sign...");
+        router.push('/');
+  
+      } catch (error) {
+        console.error("Google Sign In Error:", error);
+        toast.error("Something went wrong with Google Sign In");
+      }
+    };
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 relative overflow-hidden">
@@ -164,7 +174,7 @@ const LoginPage = () => {
 
         {/* Google btn */}
         <Button
-          onClick={handleSignInGoogle}
+          onClick={handleSignUpGoogle}
           disabled={isLoading}
           className="w-full py-6 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white rounded-xl transition-all flex items-center justify-center gap-2"
         >

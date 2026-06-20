@@ -2,14 +2,20 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sparkles, LogOut } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { Avatar, Button, Spinner } from "@heroui/react";
+import { Chip } from "@heroui/react";
 import { toast } from "sonner";
+import { AiFillHome } from "react-icons/ai";
+import { TbPrompt } from "react-icons/tb";
+import { MdDashboard } from "react-icons/md";
+import { CgProfile } from "react-icons/cg";
 
 export default function Navbar() {
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
@@ -20,6 +26,7 @@ export default function Navbar() {
     try {
       await authClient.signOut();
       toast.success("Logged out successfully");
+      router.push('/');
       setIsOpen(false);
 
     } catch (error) {
@@ -31,6 +38,21 @@ export default function Navbar() {
     { name: "Home", href: "/" },
     { name: "All Prompts", href: "/all-prompts" },
   ];
+
+  const dashboardLinks = {
+    user: '/dashboard/user',
+    creator: '/dashboard/creator',
+    admin: '/dashboard/admin'
+  }
+
+  if (user?.email) {
+    navLinks.push(
+      {
+        name: 'Dashboard',
+        href: dashboardLinks[user?.role || 'user']
+      }
+    )
+  }
 
   const isActive = (path) => pathname === path;
 
@@ -69,36 +91,59 @@ export default function Navbar() {
               </div>
             ) : user ? (
               <div className="flex items-center gap-4">
-                <Link href={'/profile'}
+                <Link href={dashboardLinks[user?.role || "user"]}
                   className="group flex items-center p-1.5 pr-3 bg-zinc-900/40 hover:bg-zinc-900/90 border border-zinc-800 hover:border-purple-500/30 rounded-2xl transition-all duration-200 shadow-sm hover:shadow-purple-500/5 active:scale-[0.98]"
                 >
                   <div className="flex items-center gap-2.5">
+
+                    {/* =================== User Logo ============== */}
                     <Avatar>
                       <Avatar.Image alt="Profile Logo" src={user?.image} />
-                      <Avatar.Fallback>{user.name?.charAt(0)}</Avatar.Fallback>
+                      <Avatar.Fallback>{user?.name?.charAt(0)}</Avatar.Fallback>
                     </Avatar>
-                    <span className="text-sm text-zinc-300 font-medium hidden lg:inline-block">
-                      {user?.name}
-                    </span>
+
+                    {/* =============== user name role and plan ================= */}
+                    <div>
+                      <span className="text-sm font-semibold text-zinc-200">
+                        {user?.name}
+                      </span>
+                      <div className="flex items-center gap-1.5 text-[10px] font-medium">
+                        <span className={user?.role === 'user' ? 'text-rose-400' : 'text-zinc-400'}>
+                          {user?.role}
+                        </span>
+                        <span className="text-zinc-600">•</span>
+                        <span className={user?.plan === 'premium' ? 'text-amber-400' : 'text-emerald-400'}>
+                          {user?.plan}
+                        </span>
+                      </div>
+                    </div>
+                    {/* =============== user name role and plan ================= */}
+
                   </div>
                 </Link>
-                <Button
-                  variant="danger"
-                  onClick={handleSignOut}
-                >
-                  Logout <LogOut className="h-4 w-4" />
-                </Button>
+
+                <div className="flex items-center gap-4">
+                  <Button
+                    variant="danger"
+                    onClick={handleSignOut}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-all duration-200 active:scale-95"
+                  >
+                    <span>Logout</span>
+                    <LogOut className="h-4 w-4 opacity-80" />
+                  </Button>
+                </div>
+
               </div>
             ) : (
               <div className="flex items-center space-x-3">
                 <Link
-                  href={"/login"}
+                  href={"/auth/login"}
                   className="text-sm font-medium text-zinc-400 hover:text-white px-3 py-2 transition-colors"
                 >
                   Login
                 </Link>
                 <Link
-                  href={"/register"}
+                  href={"/auth/register"}
                   className="text-sm font-medium bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white px-4 py-2 rounded-lg shadow-lg shadow-purple-500/20 transition-all active:scale-95"
                 >
                   Register
@@ -141,20 +186,6 @@ export default function Navbar() {
             className="md:hidden bg-[#09090b] border-b border-zinc-800"
           >
             <div className="px-2 pt-2 pb-4 space-y-1 sm:px-3">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className={`block px-3 py-2 rounded-md text-base font-medium ${isActive(link.href) ? "bg-zinc-800 text-purple-400" : "text-zinc-400 hover:bg-zinc-900 hover:text-white"
-                    }`}
-                >
-                  {link.name}
-                </Link>
-              ))}
-
-              <hr className="border-zinc-800 my-2" />
-
               {/* sm device auth */}
               <div className="space-y-2 pt-2 px-3">
                 {isPending ? (
@@ -163,15 +194,57 @@ export default function Navbar() {
                   </div>
                 ) : user ? (
                   <div className="space-y-3">
+
                     <div className="flex items-center gap-3 bg-zinc-900/40 p-3 rounded-xl border border-zinc-800/60">
+                      <Link
+                        href="/"
+                        className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
+                      >
+                        <AiFillHome /> Home
+                      </Link>
+                    </div>
+
+                    <div className="flex items-center gap-3 bg-zinc-900/40 p-3 rounded-xl border border-zinc-800/60">
+                      <Link
+                        href="/all-prompts"
+                        className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
+                      >
+                        <TbPrompt /> All Prompts 
+                      </Link>
+                    </div>
+
+                    <div className="flex items-center gap-3 bg-zinc-900/40 p-3 rounded-xl border border-zinc-800/60">
+                      <Link
+                        href={dashboardLinks[user?.role || "user"]}
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
+                      >
+                        <MdDashboard /> Dashboard
+                      </Link>
+                    </div>
+
+
+                    <div className="flex items-center gap-3 bg-zinc-900/40 p-3 rounded-xl border border-zinc-800/60">
+                      {/* ================== user pic ======================= */}
                       <Avatar>
                         <Avatar.Image alt="Profile Logo" src={user?.image} />
                         <Avatar.Fallback>{user.name?.charAt(0)}</Avatar.Fallback>
                       </Avatar>
+                      {/* ============= user name. email. role and plan ====== */}
                       <div className="flex flex-col min-w-0">
                         <span className="text-sm font-medium text-zinc-200 truncate">{user?.name}</span>
                         <span className="text-xs text-zinc-500 truncate">{user?.email}</span>
+                        <div className="flex items-center gap-1.5 text-[10px] font-medium">
+                          <span className={user?.role === 'user' ? 'text-rose-400' : 'text-zinc-400'}>
+                            {user?.role}
+                          </span>
+                          <span className="text-zinc-600">•</span>
+                          <span className={user?.plan === 'premium' ? 'text-amber-400' : 'text-emerald-400'}>
+                            {user?.plan}
+                          </span>
+                        </div>
                       </div>
+                      {/* ============= user name. email. role and plan ====== */}
                     </div>
 
                     <div className="flex items-center justify-center">
@@ -188,14 +261,14 @@ export default function Navbar() {
                 ) : (
                   <>
                     <Link
-                      href={"/login"}
+                      href={"/auth/login"}
                       onClick={() => setIsOpen(false)}
                       className="block w-full text-center text-zinc-400 hover:text-white py-2 font-medium"
                     >
                       Login
                     </Link>
                     <Link
-                      href={"/register"}
+                      href={"/auth/register"}
                       onClick={() => setIsOpen(false)}
                       className="block w-full text-center bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 rounded-md font-medium"
                     >

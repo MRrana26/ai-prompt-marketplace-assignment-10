@@ -12,8 +12,8 @@ import {
   Label,
   TextField,
 } from "@heroui/react";
-
-import { Sparkles, ArrowRight } from "lucide-react";
+import { Radio, RadioGroup } from "@heroui/react";
+import { Sparkles, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
@@ -24,6 +24,7 @@ import { useState } from "react";
 const RegisterPage = () => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -38,11 +39,11 @@ const RegisterPage = () => {
     setIsSubmitting(true);
 
     try {
-
       const { data, error } = await authClient.signUp.email({
         email: formValues.email,
         name: formValues.name,
         password: formValues.password,
+        role: formValues.role,
         image: formValues.image || "",
 
         additionalFields: {
@@ -66,9 +67,18 @@ const RegisterPage = () => {
     }
   };
 
-  const handleSignUpGoogle = () => {
-    console.log("Google Sign-Up Triggered (Default Config: user/free ready)");
-    toast.success("Google Sign-Up Clicked");
+  const handleSignUpGoogle = async () => {
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+      });
+      toast.success("Google Sign...");
+      router.push('/');
+
+    } catch (error) {
+      console.error("Google Sign In Error:", error);
+      toast.error("Something went wrong with Google Sign In");
+    }
   };
 
   return (
@@ -159,9 +169,10 @@ const RegisterPage = () => {
             isRequired
             minLength={6}
             name="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             className="w-full"
             validate={(value) => {
+
               if (value.length < 6) {
                 return "Password must be at least 6 characters";
               }
@@ -177,15 +188,50 @@ const RegisterPage = () => {
             <Label className="text-xs font-medium text-zinc-400 uppercase tracking-wider block mb-1">
               Password
             </Label>
-            <Input
-              placeholder="••••••••"
-              className="bg-zinc-900/50 border border-zinc-800 rounded-xl text-zinc-100"
-            />
+
+            <div className="relative">
+              <Input
+                placeholder="••••••••"
+                className="bg-zinc-900/50 border border-zinc-800 rounded-xl text-zinc-100 pr-10 w-full"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 transition-colors"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+
             <Description className="text-[11px] text-zinc-500 mt-1">
               Must be at least 6 characters with 1 uppercase and 1 number
             </Description>
             <FieldError className="text-xs text-red-500 mt-1" />
           </TextField>
+
+          {/* ============ Radio Group ================== */}
+          <div className="flex flex-col gap-4">
+            <Label className="font-medium text-zinc-400">Role Select</Label>
+            <RadioGroup defaultValue="user" name="role" orientation="horizontal">
+              <Radio value="user">
+                <Radio.Content className="flex text-xs font-medium text-zinc-400">
+                  <Radio.Control>
+                    <Radio.Indicator />
+                  </Radio.Control>
+                  User
+                </Radio.Content>
+              </Radio>
+              <Radio value="creator">
+                <Radio.Content className="flex text-xs font-medium text-zinc-400">
+                  <Radio.Control>
+                    <Radio.Indicator />
+                  </Radio.Control>
+                  Creator
+                </Radio.Content>
+              </Radio>
+            </RadioGroup>
+          </div>
+          {/* ============ Radio Group ================== */}
 
           {/* btn */}
           <Button
