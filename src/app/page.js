@@ -1,5 +1,8 @@
 import FeaturedPrompts from "@/components/FeaturedPrompts";
 import HeroBanner from "@/components/HeroBanner";
+import WhyChooseUs from "@/components/WhyChooseUs";
+import TopCreators from "@/components/TopCreators";
+import CustomerReviews from "@/components/CustomerReviews";
 
 
 export default function Home() {
@@ -7,6 +10,9 @@ export default function Home() {
     <div className="min-h-screen">
       <HeroBanner />
       <FeaturedPrompts />
+      <WhyChooseUs />
+      <TopCreators />
+      <CustomerReviews />
     </div>
   );
 }

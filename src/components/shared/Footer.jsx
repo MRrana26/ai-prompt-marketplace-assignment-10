@@ -4,10 +4,15 @@ import Link from "next/link";
 
 import { GitFork, Sparkles } from "lucide-react";
 import { FaFacebook, FaGithub, FaLink, FaLinkedin } from "react-icons/fa";
+import { usePathname } from "next/navigation";
 
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
+    const pathname = usePathname();
+      if(pathname.includes('dashboard')){
+        return null;
+      }
 
     return (
         <footer className="bg-[#09090b] border-t border-zinc-900 text-zinc-400 text-sm">

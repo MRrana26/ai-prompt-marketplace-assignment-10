@@ -2,8 +2,15 @@
 
 import React, { useState } from "react";
 import { Upload, PlusCircle } from "lucide-react";
+import { toast } from "sonner";
+import { createPrompt } from "@/lib/actions/prompts";
+import { redirect } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
 export default function UserPromptsHomePage() {
+
+  const { data: session, isPending } = authClient.useSession();
+  const user = session?.user;
 
   const [formData, setFormData] = useState({
     title: "",
@@ -15,41 +22,77 @@ export default function UserPromptsHomePage() {
     visibilityStatus: "Public",
     tags: "",
   });
-  const [thumbnail, setThumbnail] = useState(null);
+
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setThumbnail(e.target.files[0]);
-    }
-  };
-
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting Prompt Data:", formData);
-    console.log("Uploaded Thumbnail:", thumbnail);
+    setIsSubmitting(true);
+
+    const newErrors = {};
+    if (!formData.title) newErrors.title = "Prompt title is required";
+    if (!formData.shortDescription) newErrors.shortDescription = "Short description is required";
+    if (!formData.contentTemplate) newErrors.contentTemplate = "Content template is required";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setIsSubmitting(false);
+      return;
+    }
+
+    setErrors({});
+
+    try {
+      const tagsArray = formData.tags ? formData.tags.split(",").map(tag => tag.trim()) : [];
+
+      const res = await createPrompt({
+        ...formData,
+        tags: tagsArray, 
+        copyCount: 0,
+        creatorEmail: user?.email,
+        thumbnailUrl: "https://placehold.co/600x400/png",
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      });
+
+      if (res.insertedId) {
+        toast.success("Prompt submitted for review successfully!");
+        setFormData({
+          title: "",
+          shortDescription: "",
+          contentTemplate: "",
+          category: "Coding",
+          aiEngine: "ChatGPT",
+          difficultyLevel: "Beginner",
+          visibilityStatus: "Public",
+          tags: "",
+        });
+      }
+    } catch (error) {
+      toast.warning("Submission failed:", error);
+    } finally {
+      setIsSubmitting(false);
+      redirect('/dashboard/user/my-prompts');
+    }
   };
 
   return (
     <div className="w-full bg-zinc-950 text-zinc-100 p-6 min-h-screen flex justify-center items-start">
       <div className="w-full max-w-2xl bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-6 md:p-8 shadow-xl backdrop-blur-xs">
-        
-        {/* Header Title */}
+
         <div className="mb-6">
           <h1 className="text-2xl font-bold tracking-tight text-zinc-100">Create New Prompt Template</h1>
           <p className="text-sm text-zinc-400 mt-1">Fill in details to submit a prompt to the community catalog.</p>
         </div>
 
-        {/* Form Build Section */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-5 text-sm">
-          
-          {/* PROMPT TITLE */}
+
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">
               Prompt Title <span className="text-red-500">*</span>
@@ -60,12 +103,12 @@ export default function UserPromptsHomePage() {
               value={formData.title}
               onChange={handleChange}
               placeholder="e.g. Optimized React Tailwind Card Builder"
-              required
-              className="w-full bg-zinc-950/60 border border-zinc-800 text-zinc-200 placeholder-zinc-600 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"
+              className={`w-full bg-zinc-950/60 border text-zinc-200 placeholder-zinc-600 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all ${errors.title ? "border-red-500" : "border-zinc-800"
+                }`}
             />
+            {errors.title && <span className="text-xs text-red-500">{errors.title}</span>}
           </div>
 
-          {/* SHORT DESCRIPTION */}
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">
               Short Description <span className="text-red-500">*</span>
@@ -76,12 +119,12 @@ export default function UserPromptsHomePage() {
               value={formData.shortDescription}
               onChange={handleChange}
               placeholder="Explain what this prompt accomplishes in 1-2 sentences"
-              required
-              className="w-full bg-zinc-950/60 border border-zinc-800 text-zinc-200 placeholder-zinc-600 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"
+              className={`w-full bg-zinc-950/60 border text-zinc-200 placeholder-zinc-600 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all ${errors.shortDescription ? "border-red-500" : "border-zinc-800"
+                }`}
             />
+            {errors.shortDescription && <span className="text-xs text-red-500">{errors.shortDescription}</span>}
           </div>
 
-          {/* PROMPT CONTENT TEMPLATE */}
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">
               Prompt Content Template <span className="text-red-500">*</span>
@@ -92,12 +135,12 @@ export default function UserPromptsHomePage() {
               onChange={handleChange}
               rows={5}
               placeholder='Write the full, detailed prompt instructions. Use brackets to indicate variables e.g., "Act as a [role]..."'
-              required
-              className="w-full bg-zinc-950/60 border border-zinc-800 text-zinc-200 placeholder-zinc-600 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all resize-none leading-relaxed"
+              className={`w-full bg-zinc-950/60 border text-zinc-200 placeholder-zinc-600 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all resize-none leading-relaxed ${errors.contentTemplate ? "border-red-500" : "border-zinc-800"
+                }`}
             />
+            {errors.contentTemplate && <span className="text-xs text-red-500">{errors.contentTemplate}</span>}
           </div>
 
-          {/* Grid Layout: CATEGORY & AI ENGINE */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
               <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">
@@ -135,7 +178,6 @@ export default function UserPromptsHomePage() {
             </div>
           </div>
 
-          {/* Grid Layout: DIFFICULTY LEVEL & VISIBILITY STATUS */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
               <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">
@@ -153,7 +195,6 @@ export default function UserPromptsHomePage() {
               </select>
             </div>
 
-            {/* Radio Options Block */}
             <div className="flex flex-col gap-2">
               <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">
                 Visibility Status <span className="text-red-500">*</span>
@@ -185,7 +226,6 @@ export default function UserPromptsHomePage() {
             </div>
           </div>
 
-          {/* TAGS (COMMA-SEPARATED) */}
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">
               Tags (Comma-Separated)
@@ -200,35 +240,25 @@ export default function UserPromptsHomePage() {
             />
           </div>
 
-          {/* THUMBNAIL IMAGE UPLOAD DRAGZONE */}
+          {/* Thumbnail */}
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">
               Thumbnail Image Upload
             </label>
-            <label className="w-full border-2 border-dashed border-zinc-800 hover:border-purple-500/50 rounded-xl p-6 bg-zinc-950/20 text-center flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors group">
-              <input
-                type="file"
-                accept="image/png, image/jpeg, image/webp"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-              <Upload className="size-6 text-zinc-500 group-hover:text-purple-400 transition-colors" />
-              <span className="text-zinc-200 font-bold tracking-wide">
-                {thumbnail ? thumbnail.name : "Click to choose a thumbnail image file"}
-              </span>
-              <span className="text-xs text-zinc-500">
-                Supports PNG, JPG, or WEBP (Max 2MB)
-              </span>
-            </label>
+            <div className="w-full border-2 border-dashed border-zinc-800 hover:border-purple-500/50 rounded-xl p-6 bg-zinc-950/20 text-center flex flex-col items-center justify-center gap-2 transition-colors group cursor-not-allowed opacity-50">
+              <Upload className="size-6 text-zinc-500" />
+              <span className="text-zinc-200 font-bold tracking-wide">Click to choose a thumbnail image file</span>
+              <span className="text-xs text-zinc-500">Supports PNG, JPG, or WEBP (Max 2MB)</span>
+            </div>
           </div>
 
-          {/* SUBMIT BUTTON */}
           <button
             type="submit"
-            className="w-full mt-2 bg-purple-600 text-white font-bold py-3.5 px-4 rounded-xl hover:bg-purple-500 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-purple-900/10"
+            disabled={isSubmitting}
+            className="w-full mt-2 bg-purple-600 text-white font-bold py-3.5 px-4 rounded-xl hover:bg-purple-500 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-purple-900/10 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <PlusCircle className="size-4" />
-            <span>Submit Prompt for Review</span>
+            <span>{isSubmitting ? "Submitting..." : "Submit Prompt for Review"}</span>
           </button>
 
         </form>

@@ -1,38 +1,33 @@
 "use client";
 
-import React, { useState } from "react";
-import { Plus, AlertCircle, Eye, Edit, BarChart3, Trash2 } from "lucide-react";
-
-
-const initialPrompts = [
-  {
-    id: 1,
-    title: "check 011",
-    category: "System Assistant",
-    engine: "GEMINI",
-    visibility: "Private",
-    status: "PENDING",
-    copies: 0,
-    rating: "0.0",
-  },
-  {
-    id: 2,
-    title: "check",
-    category: "Marketing",
-    engine: "CLAUDE",
-    visibility: "Public",
-    status: "APPROVED",
-    copies: 1,
-    rating: "0.0",
-  },
-];
+import React, { useEffect, useState } from "react";
+import { Plus, Eye, Edit3, BarChart2, Trash2, Lock, Globe, AlertCircle, Star } from "lucide-react";
+import { getUserPrompts } from "@/lib/api/prompts";
 
 export default function CreatorMyPromptsHomePage() {
-  const [prompts, setPrompts] = useState(initialPrompts);
+  const [prompts, setPrompts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleDelete = (id) => {
-    setPrompts(prompts.filter((item) => item.id !== id));
+  useEffect(() => {
+    const loadPrompts = async () => {
+      const data = await getUserPrompts();
+      setPrompts(data);
+      setLoading(false);
+    };
+    loadPrompts();
+  }, []);
+
+  const handleAction = (actionType, promptId) => {
+    console.log(`Action: ${actionType} on Prompt ID: ${promptId}`);
   };
+
+  if (loading) {
+    return (
+      <div className="w-full bg-zinc-950 text-zinc-100 min-h-screen flex items-center justify-center">
+        <span className="animate-pulse text-zinc-400 font-medium">Loading your prompts...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full min-h-screen bg-zinc-950 text-zinc-100 p-6">
@@ -58,8 +53,7 @@ export default function CreatorMyPromptsHomePage() {
 
         {/* Dynamic Content Section */}
         {prompts.length === 0 ? (
-          
-          /* EMPTY STATE DIAGRAM */
+          /* EMPTY STATE */
           <div className="w-full bg-zinc-900/20 border border-zinc-900 rounded-2xl p-12 flex flex-col items-center justify-center text-center border-dashed min-h-[400px]">
             <div className="p-4 rounded-full bg-zinc-900/50 border border-zinc-800 text-zinc-500 mb-4 shadow-inner">
               <AlertCircle className="size-8" />
@@ -75,109 +69,126 @@ export default function CreatorMyPromptsHomePage() {
             </button>
           </div>
         ) : (
-          
           /* TABLE CONTAINER */
-          <div className="w-full bg-zinc-900/30 border border-zinc-800/80 rounded-2xl overflow-hidden shadow-xl overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[800px]">
-              <thead>
-                <tr className="border-b border-zinc-800/60 bg-zinc-900/10 text-[11px] font-bold uppercase tracking-wider text-zinc-400">
-                  <th className="py-4 px-5">Title</th>
-                  <th className="py-4 px-4">AI Engine</th>
-                  <th className="py-4 px-4">Visibility</th>
-                  <th className="py-4 px-4">Status</th>
-                  <th className="py-4 px-4 text-center">Copies</th>
-                  <th className="py-4 px-4 text-center">Rating</th>
-                  <th className="py-4 px-5 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-900/60">
-                {prompts.map((prompt) => (
-                  <tr
-                    key={prompt.id}
-                    className="hover:bg-zinc-900/10 transition-colors"
-                  >
-                    {/* Title & Category */}
-                    <td className="py-4 px-5">
-                      <div className="flex flex-col gap-0.5">
-                        <span className="font-bold text-sm text-zinc-100 tracking-wide">
-                          {prompt.title}
-                        </span>
-                        <span className="text-xs text-zinc-500">
-                          Category: {prompt.category}
-                        </span>
-                      </div>
-                    </td>
-
-                    {/* AI Engine Badge */}
-                    <td className="py-4 px-4">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                        prompt.engine === "GEMINI"
-                          ? "bg-fuchsia-950/30 border-fuchsia-800/40 text-fuchsia-400"
-                          : "bg-purple-950/30 border-purple-800/40 text-purple-400"
-                      }`}>
-                        {prompt.engine}
-                      </span>
-                    </td>
-
-                    {/* Visibility */}
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-1.5 text-xs text-zinc-300">
-                        {prompt.visibility === "Private" ? (
-                          <>
-                            <span className="text-zinc-400 text-xs">🔒</span>
-                            <span>Private</span>
-                          </>
-                        ) : (
-                          <span>Public</span>
-                        )}
-                      </div>
-                    </td>
-
-                    {/* Status Badge */}
-                    <td className="py-4 px-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
-                        prompt.status === "APPROVED"
-                          ? "bg-emerald-950/30 border-emerald-900/60 text-emerald-400"
-                          : "bg-amber-950/30 border-amber-900/60 text-amber-500"
-                      }`}>
-                        {prompt.status === "PENDING" ? "🕒 PENDING" : "✓ APPROVED"}
-                      </span>
-                    </td>
-
-                    {/* Copies Count */}
-                    <td className="py-4 px-4 text-center font-bold text-sm text-zinc-200">
-                      {prompt.copies}
-                    </td>
-
-                    {/* Rating */}
-                    <td className="py-4 px-4 text-center font-medium text-sm text-zinc-300">
-                      ★ {prompt.rating}
-                    </td>
-
-                    {/* Action Buttons */}
-                    <td className="py-4 px-5">
-                      <div className="flex items-center justify-end gap-2">
-                        <button className="p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-200 transition cursor-pointer">
-                          <Eye className="size-4" />
-                        </button>
-                        <button className="p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-200 transition cursor-pointer">
-                          <Edit className="size-4" />
-                        </button>
-                        <button className="p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-200 transition cursor-pointer">
-                          <BarChart3 className="size-4" />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(prompt.id)}
-                          className="p-2 rounded-lg bg-red-950/20 border border-red-900/30 text-red-400 hover:bg-red-500 hover:text-white transition cursor-pointer"
-                        >
-                          <Trash2 className="size-4" />
-                        </button>
-                      </div>
-                    </td>
+          <div className="max-w-7xl w-full bg-zinc-900/40 border border-zinc-800/80 rounded-2xl overflow-hidden backdrop-blur-xs shadow-xl">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-zinc-800 text-[11px] font-bold uppercase tracking-wider text-zinc-400 bg-zinc-900/20">
+                    <th className="py-4 px-6">Title</th>
+                    <th className="py-4 px-6">AI Engine</th>
+                    <th className="py-4 px-6">Visibility</th>
+                    <th className="py-4 px-6">Status</th>
+                    <th className="py-4 px-6 text-center">Copies</th>
+                    <th className="py-4 px-6 text-center">Rating</th>
+                    <th className="py-4 px-6 text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+
+                <tbody className="divide-y divide-zinc-800/60 text-sm">
+                  {prompts.map((prompt) => (
+                    <tr
+                      key={prompt._id}
+                      className="transition-colors hover:bg-zinc-800/10"
+                    >
+                      {/* Title & Category */}
+                      <td className="py-4 px-6">
+                        <div className="flex flex-col min-w-[150px]">
+                          <span className="font-bold text-zinc-100 tracking-wide">
+                            {prompt.title}
+                          </span>
+                          <span className="text-xs text-zinc-500 mt-0.5">
+                            Category: {prompt.category}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* AI Engine Badge */}
+                      <td className="py-4 px-6 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-purple-950/40 border border-purple-900/40 text-purple-400 tracking-wider uppercase">
+                          {prompt.aiEngine}
+                        </span>
+                      </td>
+
+                      {/* Visibility with Dynamic Icon */}
+                      <td className="py-4 px-6 whitespace-nowrap text-zinc-300 font-medium">
+                        <div className="flex items-center gap-1.5">
+                          {prompt.visibilityStatus === "Private" ? (
+                            <>
+                              <Lock className="size-3.5 text-zinc-400" />
+                              <span>Private</span>
+                            </>
+                          ) : (
+                            <>
+                              <Globe className="size-3.5 text-zinc-400" />
+                              <span>Public</span>
+                            </>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Status Badge */}
+                      <td className="py-4 px-6 whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-amber-950/20 border border-amber-900/40 text-amber-500 uppercase tracking-wide">
+                          <AlertCircle className="size-3.5 shrink-0" />
+                          {prompt.status}
+                        </span>
+                      </td>
+
+                      {/* Copies Count */}
+                      <td className="py-4 px-6 text-center font-bold text-zinc-100 whitespace-nowrap">
+                        {prompt.copyCount || 0}
+                      </td>
+
+                      {/* Rating with Star */}
+                      <td className="py-4 px-6 text-center whitespace-nowrap">
+                        <div className="flex items-center justify-center gap-1 font-semibold text-zinc-300">
+                          <Star className="size-3.5 text-zinc-400" />
+                          <span>{(prompt.rating || 0).toFixed(1)}</span>
+                        </div>
+                      </td>
+
+                      {/* Action Buttons Group */}
+                      <td className="py-4 px-6 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => handleAction("view", prompt._id)}
+                            className="p-2 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+                            title="View"
+                          >
+                            <Eye className="size-4" />
+                          </button>
+
+                          <button
+                            onClick={() => handleAction("edit", prompt._id)}
+                            className="p-2 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+                            title="Edit"
+                          >
+                            <Edit3 className="size-4" />
+                          </button>
+
+                          <button
+                            onClick={() => handleAction("analytics", prompt._id)}
+                            className="p-2 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+                            title="Analytics"
+                          >
+                            <BarChart2 className="size-4" />
+                          </button>
+
+                          <button
+                            onClick={() => handleAction("delete", prompt._id)}
+                            className="p-2 rounded-lg bg-red-950/20 border border-red-900/30 text-red-400/90 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+                            title="Delete"
+                          >
+                            <Trash2 className="size-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

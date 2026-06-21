@@ -2,8 +2,15 @@
 
 import React, { useState } from "react";
 import { Upload, PlusCircle } from "lucide-react";
+import { createPrompt } from "@/lib/actions/prompts";
+import { toast } from "sonner";
+import { redirect } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
 export default function CreatorAddPromptsHomePage() {
+
+  const { data: session, isPending } = authClient.useSession();
+      const user = session?.user;
 
   const [formData, setFormData] = useState({
     title: "",
@@ -15,6 +22,8 @@ export default function CreatorAddPromptsHomePage() {
     visibilityStatus: "Public",
     tags: "",
   });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [thumbnail, setThumbnail] = useState(null);
 
   const handleChange = (e) => {
@@ -30,16 +39,70 @@ export default function CreatorAddPromptsHomePage() {
   };
 
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting Prompt Data:", formData);
-    console.log("Uploaded Thumbnail:", thumbnail);
+    setIsSubmitting(true);
+
+    const newErrors = {};
+    if (!formData.title) newErrors.title = "Prompt title is required";
+    if (!formData.shortDescription) newErrors.shortDescription = "Short description is required";
+    if (!formData.contentTemplate) newErrors.contentTemplate = "Content template is required";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setIsSubmitting(false);
+      return;
+    }
+
+    setErrors({});
+
+    try {
+
+      let uploadedImageUrl = "https://placehold.co/600x400/png";
+
+      if (thumbnail) {
+        console.log("Uploading file to hosting...", thumbnail.name);
+      }
+
+      const tagsArray = formData.tags ? formData.tags.split(",").map(tag => tag.trim()) : [];
+
+      const res = await createPrompt({
+        ...formData,
+        tags: tagsArray,
+        copyCount: 0,
+        creatorEmail: user?.email,
+        thumbnailUrl: uploadedImageUrl,
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      });
+
+      if (res?.insertedId) {
+        toast.success("Prompt submitted successfully!");
+        setFormData({
+          title: "",
+          shortDescription: "",
+          contentTemplate: "",
+          category: "Coding",
+          aiEngine: "ChatGPT",
+          difficultyLevel: "Beginner",
+          visibilityStatus: "Public",
+          tags: "",
+        });
+        setThumbnail(null);
+        
+      }
+    } catch (error) {
+      console.error("Submission failed:", error);
+    } finally {
+      setIsSubmitting(false);
+      redirect('/dashboard/creator/my-prompts')
+    }
   };
 
   return (
     <div className="w-full bg-zinc-950 text-zinc-100 p-6 min-h-screen flex justify-center items-start">
       <div className="w-full max-w-2xl bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-6 md:p-8 shadow-xl backdrop-blur-xs">
-        
+
         {/* Header Title */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold tracking-tight text-zinc-100">Create New Prompt Template</h1>
@@ -48,7 +111,7 @@ export default function CreatorAddPromptsHomePage() {
 
         {/* Form Build Section */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-5 text-sm">
-          
+
           {/* PROMPT TITLE */}
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">
@@ -225,10 +288,11 @@ export default function CreatorAddPromptsHomePage() {
           {/* SUBMIT BUTTON */}
           <button
             type="submit"
-            className="w-full mt-2 bg-purple-600 text-white font-bold py-3.5 px-4 rounded-xl hover:bg-purple-500 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-purple-900/10"
+            disabled={isSubmitting}
+            className="w-full mt-2 bg-purple-600 text-white font-bold py-3.5 px-4 rounded-xl hover:bg-purple-500 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-purple-900/10 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <PlusCircle className="size-4" />
-            <span>Submit Prompt for Review</span>
+            <span>{isSubmitting ? "Submitting..." : "Submit Prompt for Review"}</span>
           </button>
 
         </form>
