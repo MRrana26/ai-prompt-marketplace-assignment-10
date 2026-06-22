@@ -3,20 +3,29 @@
 import React, { useEffect, useState } from "react";
 import { Eye, Edit3, BarChart2, Trash2, Lock, Globe, AlertCircle, Star } from "lucide-react";
 import { getUserPrompts } from "@/lib/api/prompts";
+import { authClient } from "@/lib/auth-client";
 
 
 export default function UserMyPromptsHomePage() {
   const [myPromptsData, setMyPromptsData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { data: session, isPending } = authClient.useSession();
+  const user = session?.user;
 
   useEffect(() => {
     const loadPrompts = async () => {
-      const data = await getUserPrompts();
-      setMyPromptsData(data);
+      if (isPending) return;
+
+      const userEmail = user?.email;
+
+      if (userEmail) {
+        const data = await getUserPrompts(userEmail);
+        setMyPromptsData(data);
+      }
       setLoading(false);
     };
     loadPrompts();
-  }, []);
+  }, [user, isPending]);
 
   const handleAction = (actionType, promptId) => {
     console.log(`Action: ${actionType} on Prompt ID: ${promptId}`);
@@ -66,7 +75,7 @@ export default function UserMyPromptsHomePage() {
                 </tr>
               ) : (
                 myPromptsData.map((prompt) => (
-                  <tr 
+                  <tr
                     key={prompt._id}
                     className="transition-colors hover:bg-zinc-800/10"
                   >

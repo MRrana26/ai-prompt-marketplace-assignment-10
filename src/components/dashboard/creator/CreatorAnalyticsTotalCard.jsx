@@ -4,9 +4,9 @@ import React from "react";
 import { FileText, Copy, Bookmark } from "lucide-react";
 
 export default function CreatorAnalyticsTotalCard({ 
-  promptsCount = 1, 
-  copiesCount = 1, 
-  bookmarksCount = 10 
+  promptsCount = 0, 
+  copiesCount = 0, 
+  bookmarksCount = 0 
 }) {
   return (
     <div className="w-full bg-zinc-950 text-zinc-100 p-6">

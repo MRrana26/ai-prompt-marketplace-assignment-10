@@ -2,20 +2,29 @@
 
 import React, { useEffect, useState } from "react";
 import { Plus, Eye, Edit3, BarChart2, Trash2, Lock, Globe, AlertCircle, Star } from "lucide-react";
-import { getUserPrompts } from "@/lib/api/prompts";
+import { getCreatorPrompts } from "@/lib/api/prompts";
+import { authClient } from "@/lib/auth-client";
 
 export default function CreatorMyPromptsHomePage() {
   const [prompts, setPrompts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { data: session, isPending } = authClient.useSession();
+  const user = session?.user;
 
   useEffect(() => {
-    const loadPrompts = async () => {
-      const data = await getUserPrompts();
+  const loadPrompts = async () => {
+    if (isPending) return;
+
+    const creatorEmail = user?.email;
+
+    if (creatorEmail) {
+      const data = await getCreatorPrompts(creatorEmail);
       setPrompts(data);
-      setLoading(false);
-    };
-    loadPrompts();
-  }, []);
+    }
+    setLoading(false);
+  };
+  loadPrompts();
+}, [user, isPending]);
 
   const handleAction = (actionType, promptId) => {
     console.log(`Action: ${actionType} on Prompt ID: ${promptId}`);
@@ -32,7 +41,7 @@ export default function CreatorMyPromptsHomePage() {
   return (
     <div className="w-full min-h-screen bg-zinc-950 text-zinc-100 p-6">
       <div className="max-w-7xl mx-auto flex flex-col gap-6">
-        
+
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -43,7 +52,7 @@ export default function CreatorMyPromptsHomePage() {
               Review approval statuses, change details, and check analytics.
             </p>
           </div>
-          
+
           {/* Create New Prompt Button */}
           <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-medium text-sm rounded-xl transition shadow-[0_0_15px_rgba(168,85,247,0.4)] shrink-0 self-start sm:self-center cursor-pointer">
             <Plus className="size-4" />

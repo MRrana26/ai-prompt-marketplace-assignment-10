@@ -1,14 +1,32 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Sparkles, Mail, FileText, CheckCircle2, ShieldCheck, DollarSign, PlusCircle } from "lucide-react";
 import { Avatar } from "@heroui/react";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
+import { getCreatorPrompts } from "@/lib/api/prompts";
 
 export default function CreatorHomePage() {
+  const [prompts, setPrompts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
+
+    useEffect(() => {
+    const loadPrompts = async () => {
+      if (isPending) return;
+  
+      const creatorEmail = user?.email;
+  
+      if (creatorEmail) {
+        const data = await getCreatorPrompts(creatorEmail);
+        setPrompts(data);
+      }
+      setLoading(false);
+    };
+    loadPrompts();
+  }, [user, isPending]);
 
   const isPremium = user?.plan?.toLowerCase().includes("pro") || user?.plan?.toLowerCase().includes("premium");
 
@@ -36,7 +54,7 @@ export default function CreatorHomePage() {
         </div>
         
         <Link
-          href="/dashboard/user/prompts"
+          href={'/dashboard/creator/add-prompts'}
           className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl transition-all active:scale-[0.98] shadow-md shadow-purple-900/20 w-fit self-start sm:self-center cursor-pointer"
         >
           <PlusCircle className="size-4" />
@@ -99,7 +117,7 @@ export default function CreatorHomePage() {
               <FileText className="size-5" />
             </div>
             <span className="text-xs font-bold uppercase tracking-wider text-zinc-400 mt-2">Prompts Created</span>
-            <span className="text-3xl font-extrabold text-zinc-100">{user?.promptsCount || 0}</span>
+            <span className="text-3xl font-extrabold text-zinc-100">{prompts.length}</span>
           </div>
 
           <div className="p-5 rounded-xl bg-zinc-900/60 border border-zinc-800/80 flex flex-col gap-2">

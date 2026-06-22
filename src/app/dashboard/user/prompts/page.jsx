@@ -55,7 +55,7 @@ export default function UserPromptsHomePage() {
         ...formData,
         tags: tagsArray, 
         copyCount: 0,
-        creatorEmail: user?.email,
+        userEmail: user?.email,
         thumbnailUrl: "https://placehold.co/600x400/png",
         status: "pending",
         createdAt: new Date().toISOString(),

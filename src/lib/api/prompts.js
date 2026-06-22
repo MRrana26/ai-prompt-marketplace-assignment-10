@@ -1,15 +1,11 @@
-"use server"
-const baseUrl = process.env.NEXT_PUBLIC_URL;
+export const getCreatorPrompts = async (email) => {
+  const res = await fetch(`http://localhost:5000/api/creator-prompts?email=${email}`, { cache: "no-store" });
+  if (!res.ok) return [];
+  return await res.json();
+};
 
-export const getUserPrompts = async () => {
-    try {
-        const res = await fetch(`${baseUrl}/api/prompts`, { cache: 'no-store' });
-
-        if (!res.ok) throw new Error("Failed to fetch");
-        return await res.json();
-        
-    } catch (error) {
-        console.error("Error loading prompts:", error);
-        return [];
-    }
-}
+export const getUserPrompts = async (email) => {
+  const res = await fetch(`http://localhost:5000/api/user-prompts?email=${email}`, { cache: "no-store" });
+  if (!res.ok) return [];
+  return await res.json();
+};

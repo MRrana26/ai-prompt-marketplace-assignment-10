@@ -4,7 +4,6 @@ import React from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell } from "recharts";
 import { BarChart3, PieChart as PieIcon } from "lucide-react";
 
-// ১. ডেমো ডাটা (পরবর্তীতে আপনি সার্ভার থেকে আসা ডাটা এখানে ম্যাপ করতে পারবেন)
 const barData = [
   { name: "ChatGPT", Copies: 230, Prompts: 5 },
   { name: "Gemini", Copies: 140, Prompts: 4 },
@@ -22,15 +21,11 @@ const pieData = [
 ];
 
 export default function AdminAnalyticsCharts({ serverData }) {
-  // যদি সার্ভার থেকে ডাটা আসে, তবে সেটিকে ব্যবহার করার প্রিপারেশন:
-  // const dataForBar = serverData?.bar || barData;
-  // const dataForPie = serverData?.pie || pieData;
-
+ 
   return (
     <div className="w-full bg-zinc-950 text-zinc-100 p-6 min-h-screen">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
         
-        {/* বাম পাশের কার্ড: Bar Chart */}
         <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-6 backdrop-blur-xs flex flex-col h-[450px]">
           {/* Header */}
           <div className="flex items-center gap-2 mb-6">
@@ -51,7 +46,7 @@ export default function AdminAnalyticsCharts({ serverData }) {
                   contentStyle={{ backgroundColor: "#18181b", borderColor: "#3f3f46", borderRadius: "8px", color: "#f4f4f5" }}
                 />
                 <Legend iconType="square" verticalAlign="bottom" height={36} />
-                {/* Copies (Cyan Bar) */}
+                {/* Copies*/}
                 <Bar dataKey="Copies" fill="#06b6d4" radius={[4, 4, 0, 0]} maxBarSize={35} />
                 {/* Prompts (Purple Bar) */}
                 <Bar dataKey="Prompts" fill="#a855f7" radius={[4, 4, 0, 0]} maxBarSize={35} />
@@ -60,7 +55,6 @@ export default function AdminAnalyticsCharts({ serverData }) {
           </div>
         </div>
 
-        {/* ডান পাশের কার্ড: Pie / Donut Chart */}
         <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-6 backdrop-blur-xs flex flex-col h-[450px]">
           {/* Header */}
           <div className="flex items-center gap-2 mb-6">
@@ -81,9 +75,9 @@ export default function AdminAnalyticsCharts({ serverData }) {
                   data={pieData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={70}  // ডোনাট শেপ দেওয়ার জন্য ইনার রেডিয়াস
+                  innerRadius={70}  
                   outerRadius={95}
-                  paddingAngle={4}   // প্রতিটি স্লাইসের মাঝের গ্যাপ
+                  paddingAngle={4}
                   dataKey="value"
                 >
                   {pieData.map((entry, index) => (
@@ -93,7 +87,7 @@ export default function AdminAnalyticsCharts({ serverData }) {
               </PieChart>
             </ResponsiveContainer>
 
-            {/* Custom Grid Legend (ছবির মতো নিচে সুন্দর এলাইনমেন্টের জন্য) */}
+            
             <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs font-medium text-zinc-400 mt-2 px-4">
               {pieData.map((item, index) => (
                 <div key={index} className="flex items-center gap-2">

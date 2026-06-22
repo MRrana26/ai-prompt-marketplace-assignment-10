@@ -1,13 +1,32 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Sparkles, Mail, FileText, CheckCircle2, ShieldCheck } from "lucide-react";
 import { Avatar } from "@heroui/react";
 import { authClient } from "@/lib/auth-client";
+import { getUserPrompts } from "@/lib/api/prompts";
 
 export default function UserHomePage() {
   const { data: session, isPending } = authClient.useSession();
+  const [loading, setLoading] = useState(true);
   const user = session?.user;
+  const [myPromptsData, setMyPromptsData] = useState([]);
+
+  useEffect(() => {
+      const loadPrompts = async () => {
+        if (isPending) return;
+  
+        const userEmail = user?.email;
+  
+        if (userEmail) {
+          const data = await getUserPrompts(userEmail);
+          setMyPromptsData(data);
+        }
+        setLoading(false);
+      };
+      loadPrompts();
+    }, [user, isPending]);
+    
 
  
   const isPremium = user?.plan?.toLowerCase().includes("pro") || user?.plan?.toLowerCase().includes("premium");
@@ -89,7 +108,7 @@ export default function UserHomePage() {
               <FileText className="size-5" />
             </div>
             <span className="text-xs font-bold uppercase tracking-wider text-zinc-400 mt-2">Prompts Published</span>
-            <span className="text-3xl font-extrabold text-zinc-100">{user?.promptsCount || 0}</span>
+            <span className="text-3xl font-extrabold text-zinc-100">{myPromptsData.length}</span>
           </div>
 
           {/* Account Status Card */}
