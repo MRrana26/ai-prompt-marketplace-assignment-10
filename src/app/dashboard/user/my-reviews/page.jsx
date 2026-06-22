@@ -13,30 +13,7 @@ const initialReviewsData = [
     comments: '"Test "',
     submittedDate: "20/06/2026",
   },
-  {
-    id: "2",
-    promptTitle: "Gemini Long-form SEO Content Copywriter",
-    aiTool: "GEMINI",
-    rating: 4.0,
-    comments: '"Test 01"',
-    submittedDate: "20/06/2026",
-  }, 
-  {
-    id: "3",
-    promptTitle: "Gemini Long-form SEO Content Copywriter",
-    aiTool: "GEMINI",
-    rating: 4.0,
-    comments: '"Test 01"',
-    submittedDate: "20/06/2026",
-  },
-  {
-    id: "4",
-    promptTitle: "Gemini Long-form SEO Content Copywriter",
-    aiTool: "GEMINI",
-    rating: 4.0,
-    comments: '"Test 01"',
-    submittedDate: "20/06/2026",
-  }
+  
 ];
 
 export default function UserMyReviewsHomePage() {

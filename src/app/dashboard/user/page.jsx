@@ -5,6 +5,7 @@ import { Sparkles, Mail, FileText, CheckCircle2, ShieldCheck } from "lucide-reac
 import { Avatar } from "@heroui/react";
 import { authClient } from "@/lib/auth-client";
 import { getUserPrompts } from "@/lib/api/prompts";
+import Link from "next/link";
 
 export default function UserHomePage() {
   const { data: session, isPending } = authClient.useSession();
@@ -13,28 +14,28 @@ export default function UserHomePage() {
   const [myPromptsData, setMyPromptsData] = useState([]);
 
   useEffect(() => {
-      const loadPrompts = async () => {
-        if (isPending) return;
-  
-        const userEmail = user?.email;
-  
-        if (userEmail) {
-          const data = await getUserPrompts(userEmail);
-          setMyPromptsData(data);
-        }
-        setLoading(false);
-      };
-      loadPrompts();
-    }, [user, isPending]);
-    
+    const loadPrompts = async () => {
+      if (isPending) return;
 
- 
+      const userEmail = user?.email;
+
+      if (userEmail) {
+        const data = await getUserPrompts(userEmail);
+        setMyPromptsData(data);
+      }
+      setLoading(false);
+    };
+    loadPrompts();
+  }, [user, isPending]);
+
+
+
   const isPremium = user?.plan?.toLowerCase().includes("pro") || user?.plan?.toLowerCase().includes("premium");
-  
- 
+
+
   const roleColor = user?.role?.toLowerCase() === "admin" ? "text-red-400 border-red-900/50 bg-red-950/30" :
-                    user?.role?.toLowerCase() === "creator" ? "text-purple-400 border-purple-900/50 bg-purple-950/30" : 
-                    "text-zinc-400 border-zinc-800 bg-zinc-900/50";
+    user?.role?.toLowerCase() === "creator" ? "text-purple-400 border-purple-900/50 bg-purple-950/30" :
+      "text-zinc-400 border-zinc-800 bg-zinc-900/50";
 
   if (isPending) {
     return (
@@ -46,7 +47,7 @@ export default function UserHomePage() {
 
   return (
     <div className="w-full max-w-4xl mx-auto p-6 bg-zinc-950 text-zinc-100 min-h-screen">
-      
+
       {/* Header Section */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight text-zinc-100">User Account Profile</h1>
@@ -55,7 +56,7 @@ export default function UserHomePage() {
 
       {/* Profile Main Card */}
       <div className="w-full bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-6 shadow-xl backdrop-blur-xs">
-        
+
         {/* Profile Details Top Info */}
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 pb-6 border-b border-zinc-800/60">
           <div className="relative shrink-0">
@@ -89,11 +90,10 @@ export default function UserHomePage() {
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold border uppercase tracking-wider ${roleColor}`}>
                 Role: {user?.role || "User"}
               </span>
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold border uppercase tracking-wider ${
-                isPremium
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold border uppercase tracking-wider ${isPremium
                   ? "bg-amber-950/40 text-amber-400 border-amber-900/50"
                   : "bg-amber-950/20 text-amber-500 border-amber-500/30"
-              }`}>
+                }`}>
                 Plan: {user?.plan || "Free"}
               </span>
             </div>
@@ -125,13 +125,13 @@ export default function UserHomePage() {
 
         {/* Bottom Condition Section */}
         {isPremium ? (
-          
+
           <div className="w-full p-4 rounded-xl bg-emerald-950/20 border border-emerald-900/40 text-emerald-400 flex items-center gap-2.5 text-sm sm:text-base font-medium">
             <ShieldCheck className="size-5 shrink-0 text-emerald-400" />
             <span>Lifetime Premium Active - Enjoy complete access to all Prompt Marketplace items!</span>
           </div>
         ) : (
-         
+
           <div className="w-full p-5 rounded-xl bg-zinc-900/60 border border-dashed border-purple-900/60 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex flex-col gap-1 text-center md:text-left">
               <div className="flex items-center gap-1.5 text-zinc-100 font-bold tracking-wide justify-center md:justify-start">
@@ -142,14 +142,15 @@ export default function UserHomePage() {
                 Unlock access to all private prompt templates, parameter sets, and community reviews for a single one-time contribution of $5.
               </p>
             </div>
-            
+
             {/* Upgrade Action Button */}
-            <button 
-              onClick={() => console.log("Initiating Stripe Checkout...")}
-              className="px-6 py-2.5 bg-cyan-500 text-zinc-950 text-sm font-extrabold rounded-xl hover:bg-cyan-400 active:scale-[0.98] transition-all shadow-md shadow-cyan-500/10 shrink-0 cursor-pointer"
-            >
-              Upgrade Now ($5)
-            </button>
+            <Link href={'/payment'}>
+              <button
+                onClick={() => console.log("Initiating Stripe Checkout...")}
+                className="px-6 py-2.5 bg-cyan-500 text-zinc-950 text-sm font-extrabold rounded-xl hover:bg-cyan-400 active:scale-[0.98] transition-all shadow-md shadow-cyan-500/10 shrink-0 cursor-pointer"
+              >
+                Upgrade Now ($5)
+              </button></Link>
           </div>
         )}
 

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Plus, Eye, Edit3, BarChart2, Trash2, Lock, Globe, AlertCircle, Star } from "lucide-react";
 import { getCreatorPrompts } from "@/lib/api/prompts";
 import { authClient } from "@/lib/auth-client";
+import Link from "next/link";
 
 export default function CreatorMyPromptsHomePage() {
   const [prompts, setPrompts] = useState([]);
@@ -12,19 +13,19 @@ export default function CreatorMyPromptsHomePage() {
   const user = session?.user;
 
   useEffect(() => {
-  const loadPrompts = async () => {
-    if (isPending) return;
+    const loadPrompts = async () => {
+      if (isPending) return;
 
-    const creatorEmail = user?.email;
+      const creatorEmail = user?.email;
 
-    if (creatorEmail) {
-      const data = await getCreatorPrompts(creatorEmail);
-      setPrompts(data);
-    }
-    setLoading(false);
-  };
-  loadPrompts();
-}, [user, isPending]);
+      if (creatorEmail) {
+        const data = await getCreatorPrompts(creatorEmail);
+        setPrompts(data);
+      }
+      setLoading(false);
+    };
+    loadPrompts();
+  }, [user, isPending]);
 
   const handleAction = (actionType, promptId) => {
     console.log(`Action: ${actionType} on Prompt ID: ${promptId}`);
@@ -56,7 +57,9 @@ export default function CreatorMyPromptsHomePage() {
           {/* Create New Prompt Button */}
           <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-medium text-sm rounded-xl transition shadow-[0_0_15px_rgba(168,85,247,0.4)] shrink-0 self-start sm:self-center cursor-pointer">
             <Plus className="size-4" />
-            <span>Create New Prompt</span>
+            <Link href={'/dashboard/creator/add-prompts'}>
+              <span>Create New Prompt</span>
+            </Link>
           </button>
         </div>
 
@@ -73,9 +76,11 @@ export default function CreatorMyPromptsHomePage() {
             <p className="text-sm text-zinc-500 max-w-sm mt-1.5 mb-6">
               You have not added any prompts yet. Start publishing to reach users!
             </p>
-            <button className="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium text-xs sm:text-sm rounded-xl transition shadow-[0_0_15px_rgba(168,85,247,0.4)] cursor-pointer">
-              Publish First Prompt
-            </button>
+            <Link href={'/dashboard/creator/add-prompts'}>
+              <button className="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium text-xs sm:text-sm rounded-xl transition shadow-[0_0_15px_rgba(168,85,247,0.4)] cursor-pointer">
+                Publish First Prompt
+              </button>
+            </Link>
           </div>
         ) : (
           /* TABLE CONTAINER */

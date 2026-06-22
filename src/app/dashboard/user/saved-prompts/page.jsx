@@ -12,27 +12,7 @@ const initialSavedPrompts = [
     aiEngine: "CHATGPT",
     category: "CODING",
   },
-  {
-    id: "2",
-    title: "Claude 3.5 Sonnet Fullstack Architect",
-    description: "Creates optimal database schemas and corresponding backend route templates...",
-    aiEngine: "CLAUDE",
-    category: "CODING",
-  },
-  {
-    id: "3",
-    title: "Gemini Long-form SEO Content Copywriter",
-    description: "Structures comprehensive outline drafts for blog articles optimizing selected...",
-    aiEngine: "GEMINI",
-    category: "WRITING",
-  },
-  {
-    id: "4",
-    title: "Midjourney Premium Cinematic Portrait Recipe",
-    description: "Advanced cinematic lighting parameters and environment details to create...",
-    aiEngine: "MIDJOURNEY",
-    category: "GRAPHICS & IMAGE",
-  }
+  
 ];
 
 export default function UserSavedPromptsHomePage() {

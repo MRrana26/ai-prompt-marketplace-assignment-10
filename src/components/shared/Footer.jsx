@@ -5,14 +5,23 @@ import Link from "next/link";
 import { GitFork, Sparkles } from "lucide-react";
 import { FaFacebook, FaGithub, FaLink, FaLinkedin } from "react-icons/fa";
 import { usePathname } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
     const pathname = usePathname();
+    const { data: session } = authClient.useSession();
+    const role = session?.user?.role;
       if(pathname.includes('dashboard')){
         return null;
       }
+
+      const dashboardLink = role === "admin" 
+        ? "/dashboard/admin" 
+        : role === "creator" 
+        ? "/dashboard/creator" 
+        : "/dashboard/user";
 
     return (
         <footer className="bg-[#09090b] border-t border-zinc-900 text-zinc-400 text-sm">
@@ -58,7 +67,7 @@ export default function Footer() {
                             </h4>
                         <ul className="space-y-2.5 text-xs sm:text-sm">
                             <li>
-                                <Link href={"/dashboard"} className="hover:text-purple-400 transition-colors">
+                                <Link href={dashboardLink} className="hover:text-purple-400 transition-colors">
                                 Creator Dashboard
                                 </Link>
                             </li>

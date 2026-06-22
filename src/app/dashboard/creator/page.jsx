@@ -13,12 +13,12 @@ export default function CreatorHomePage() {
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
 
-    useEffect(() => {
+  useEffect(() => {
     const loadPrompts = async () => {
       if (isPending) return;
-  
+
       const creatorEmail = user?.email;
-  
+
       if (creatorEmail) {
         const data = await getCreatorPrompts(creatorEmail);
         setPrompts(data);
@@ -32,8 +32,8 @@ export default function CreatorHomePage() {
 
 
   const roleColor = user?.role?.toLowerCase() === "admin" ? "text-red-400 border-red-900/50 bg-red-950/30" :
-                    user?.role?.toLowerCase() === "creator" ? "text-purple-400 border-purple-900/50 bg-purple-950/30" : 
-                    "text-zinc-400 border-zinc-800 bg-zinc-900/50";
+    user?.role?.toLowerCase() === "creator" ? "text-purple-400 border-purple-900/50 bg-purple-950/30" :
+      "text-zinc-400 border-zinc-800 bg-zinc-900/50";
 
   if (isPending) {
     return (
@@ -45,14 +45,14 @@ export default function CreatorHomePage() {
 
   return (
     <div className="w-full max-w-4xl mx-auto p-6 bg-zinc-950 text-zinc-100 min-h-screen">
-      
+
       {/* Header Section */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-zinc-100">Creator Account Profile</h1>
           <p className="text-sm text-zinc-400 mt-1">Track your earnings, template metrics, and publish new prompts.</p>
         </div>
-        
+
         <Link
           href={'/dashboard/creator/add-prompts'}
           className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl transition-all active:scale-[0.98] shadow-md shadow-purple-900/20 w-fit self-start sm:self-center cursor-pointer"
@@ -64,7 +64,7 @@ export default function CreatorHomePage() {
 
       {/* Profile Main Card */}
       <div className="w-full bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-6 shadow-xl backdrop-blur-xs">
-        
+
         {/* Profile Details Top Info */}
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 pb-6 border-b border-zinc-800/60">
           <div className="relative shrink-0">
@@ -98,11 +98,10 @@ export default function CreatorHomePage() {
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold border uppercase tracking-wider ${roleColor}`}>
                 Role: {user?.role || "Creator"}
               </span>
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold border uppercase tracking-wider ${
-                isPremium
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold border uppercase tracking-wider ${isPremium
                   ? "bg-amber-950/40 text-amber-400 border-amber-900/50"
                   : "bg-amber-950/20 text-amber-500 border-amber-500/30"
-              }`}>
+                }`}>
                 Plan: {user?.plan || "Pro Lifetime"}
               </span>
             </div>
@@ -159,13 +158,15 @@ export default function CreatorHomePage() {
                 Unlock higher royalty distribution rates, bulk template CSV uploads, and analytical trends for just $5.
               </p>
             </div>
-            
-            <button 
-              onClick={() => console.log("Initiating Creator Stripe Checkout...")}
-              className="px-6 py-2.5 bg-cyan-500 text-zinc-950 text-sm font-extrabold rounded-xl hover:bg-cyan-400 active:scale-[0.98] transition-all shadow-md shadow-cyan-500/10 shrink-0 cursor-pointer"
-            >
-              Upgrade Profile
-            </button>
+
+            <Link href={'/payment'}>
+              <button
+                onClick={() => console.log("Initiating Creator Stripe Checkout...")}
+                className="px-6 py-2.5 bg-cyan-500 text-zinc-950 text-sm font-extrabold rounded-xl hover:bg-cyan-400 active:scale-[0.98] transition-all shadow-md shadow-cyan-500/10 shrink-0 cursor-pointer"
+              >
+                Upgrade Profile
+              </button>
+            </Link>
           </div>
         )}
 
