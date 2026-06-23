@@ -1,5 +1,5 @@
 "use client"
-import { Person, ChartLineArrowUp, Persons, SquareDashedText, CirclePlusFill, StarFill, ArrowUpRightFromSquare, CreditCard, Bug, BookOpen, FloppyDisk } from "@gravity-ui/icons";
+import { Person, HouseFill, ChartLineArrowUp, Persons, SquareDashedText, CirclePlusFill, StarFill, ArrowUpRightFromSquare, CreditCard, Bug, BookOpen, FloppyDisk } from "@gravity-ui/icons";
 import { Avatar, Button, Drawer } from "@heroui/react";
 import { LayoutSideContentLeft } from '@gravity-ui/icons';
 import { authClient } from "@/lib/auth-client";
@@ -12,6 +12,7 @@ export function DashboardSidebar() {
   const user = session?.user;
 
   const adminNavLinks = [
+    { icon: HouseFill, href: "/", label: "Home" },
     { icon: Person, href: "/dashboard/admin", label: "My Profile" },
     { icon: ChartLineArrowUp, href: "/dashboard/admin/analytics", label: "Admin Analytics" },
     { icon: Persons, href: "/dashboard/admin/all-user", label: "All Users" },
@@ -22,6 +23,7 @@ export function DashboardSidebar() {
 
 
   const userNavLinks = [
+    { icon: HouseFill, href: "/", label: "Home" },
     { icon: Person, href: "/dashboard/user", label: "My Profile" },
     { icon: CirclePlusFill, href: "/dashboard/user/prompts", label: "Add Prompts" },
     { icon: BookOpen, href: "/dashboard/user/my-prompts", label: "My Prompts" },
@@ -31,6 +33,7 @@ export function DashboardSidebar() {
   ];
 
   const creatorNavLinks = [
+    { icon: HouseFill, href: "/", label: "Home" },
     { icon: Person, href: "/dashboard/creator", label: "My Profile" },
     { icon: ArrowUpRightFromSquare, href: "/dashboard/creator/creator-home", label: "Creator Home" },
     { icon: CirclePlusFill, href: "/dashboard/creator/add-prompts", label: "Add Prompts" },
