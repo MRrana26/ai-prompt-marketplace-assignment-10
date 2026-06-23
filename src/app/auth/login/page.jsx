@@ -14,7 +14,7 @@ import {
   Label,
   TextField,
 } from "@heroui/react";
-import { Sparkles, ArrowRight } from "lucide-react";
+import { Sparkles, ArrowRight, EyeOff, Eye } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
@@ -22,6 +22,8 @@ import { authClient } from "@/lib/auth-client";
 const LoginPage = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isSignIn, setIsSignIn] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -32,6 +34,8 @@ const LoginPage = () => {
       return toast.error("Please fill in all fields.");
     }
 
+    setIsSignIn(true)
+
     try {
       setIsLoading(true);
       const { data, error } = await authClient.signIn.email({
@@ -41,6 +45,7 @@ const LoginPage = () => {
 
       if (error) {
         toast.error(error.message || "Invalid email or password");
+        setIsSignIn(false)
         return;
       }
 
@@ -52,26 +57,27 @@ const LoginPage = () => {
       console.error(err);
     } finally {
       setIsLoading(false);
+      setIsSignIn(false)
     }
   };
 
   const handleSignUpGoogle = async () => {
-      try {
-        await authClient.signIn.social({
-          provider: "google",
-        });
-        toast.success("Google Sign...");
-        router.push('/');
-  
-      } catch (error) {
-        console.error("Google Sign In Error:", error);
-        toast.error("Something went wrong with Google Sign In");
-      }
-    };
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+      });
+      toast.success("Google Sign...");
+      router.push('/');
+
+    } catch (error) {
+      console.error("Google Sign In Error:", error);
+      toast.error("Something went wrong with Google Sign In");
+    }
+  };
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 relative overflow-hidden">
-      
+
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-600/5 rounded-full blur-[100px] pointer-events-none" />
 
       <Card className="max-w-md w-full bg-zinc-950 p-6 rounded-2xl border border-zinc-900 shadow-xl z-10 text-zinc-100">
@@ -118,7 +124,7 @@ const LoginPage = () => {
             isRequired
             minLength={6}
             name="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             className="w-full"
             validate={(value) => {
               if (value.length < 6) {
@@ -136,10 +142,19 @@ const LoginPage = () => {
             <Label className="text-xs font-medium text-zinc-400 uppercase tracking-wider block mb-1">
               Password
             </Label>
-            <Input
-              placeholder="••••••••"
-              className="bg-zinc-900/50 border border-zinc-800 rounded-xl text-zinc-100"
-            />
+            <div className="relative">
+              <Input
+                placeholder="••••••••"
+                className="bg-zinc-900/50 border border-zinc-800 rounded-xl text-zinc-100 pr-10 w-full"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 transition-colors"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
             <Description className="text-[11px] text-zinc-500 mt-1">
               Must be at least 6 characters with 1 uppercase and 1 number
             </Description>

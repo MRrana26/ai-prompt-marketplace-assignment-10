@@ -21,7 +21,6 @@ export function DashboardSidebar() {
     { icon: Bug, href: "/dashboard/admin/reported-prompts", label: "Reported Prompts" },
   ];
 
-
   const userNavLinks = [
     { icon: HouseFill, href: "/", label: "Home" },
     { icon: Person, href: "/dashboard/user", label: "My Profile" },
@@ -29,7 +28,6 @@ export function DashboardSidebar() {
     { icon: BookOpen, href: "/dashboard/user/my-prompts", label: "My Prompts" },
     { icon: FloppyDisk, href: "/dashboard/user/saved-prompts", label: "Saved Prompts" },
     { icon: StarFill, href: "/dashboard/user/my-reviews", label: "My Reviews" },
-
   ];
 
   const creatorNavLinks = [
@@ -38,7 +36,6 @@ export function DashboardSidebar() {
     { icon: ArrowUpRightFromSquare, href: "/dashboard/creator/creator-home", label: "Creator Home" },
     { icon: CirclePlusFill, href: "/dashboard/creator/add-prompts", label: "Add Prompts" },
     { icon: BookOpen, href: "/dashboard/creator/my-prompts", label: "My Prompts" },
-
   ];
 
 

@@ -1,8 +1,6 @@
 "use client";
-
-
 export const dynamic = "force-dynamic";
-
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Eye, Check, X, Trash2, Star } from "lucide-react";
 import { toast } from "sonner";
@@ -11,6 +9,7 @@ import { getAllPrompts, updatePromptStatus, deletePrompt } from "@/lib/api/promp
 export default function AllPromptsHomePage() {
   const [prompts, setPrompts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const loadPrompts = async () => {
@@ -30,10 +29,18 @@ export default function AllPromptsHomePage() {
   };
 
   const handleReject = async (id) => {
-    const result = await updatePromptStatus(id, "rejected");
+    const currentPrompt = prompts.find(p => p._id === id);
+    if (!currentPrompt) return;
+    const newStatus = currentPrompt.status === "rejected" ? "pending" : "rejected";
+    const result = await updatePromptStatus(id, newStatus);
+
     if (result) {
-      toast.error("Prompt rejected");
-      setPrompts(prev => prev.map(p => p._id === id ? { ...p, status: "rejected" } : p));
+      if (newStatus === "pending") {
+        toast.success("Prompt status changed back to pending");
+      } else {
+        toast.error("Prompt rejected");
+      }
+      setPrompts(prev => prev.map(p => p._id === id ? { ...p, status: newStatus } : p));
     }
   };
 
@@ -126,13 +133,12 @@ export default function AllPromptsHomePage() {
                     </td>
 
                     <td className="py-4 px-6 text-center whitespace-nowrap">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-extrabold border tracking-wider ${
-                        prompt.status === "approved"
-                          ? "bg-emerald-950/30 text-emerald-400 border-emerald-900/40"
-                          : prompt.status === "rejected"
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-extrabold border tracking-wider ${prompt.status === "approved"
+                        ? "bg-emerald-950/30 text-emerald-400 border-emerald-900/40"
+                        : prompt.status === "rejected"
                           ? "bg-red-950/30 text-red-400 border-red-900/40"
                           : "bg-amber-950/20 text-amber-500 border-amber-900/30"
-                      }`}>
+                        }`}>
                         {prompt.status}
                       </span>
                     </td>
@@ -140,6 +146,7 @@ export default function AllPromptsHomePage() {
                     <td className="py-4 px-6 text-center whitespace-nowrap">
                       <div className="flex items-center justify-center gap-2">
                         <button
+                          onClick={() => router.push(`/prompts/${prompt._id}`)}
                           className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200 transition-all"
                           title="View Prompt"
                         >

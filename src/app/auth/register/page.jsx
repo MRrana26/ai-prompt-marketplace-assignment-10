@@ -25,7 +25,7 @@ const RegisterPage = () => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
+  
   const onSubmit = async (e) => {
     e.preventDefault();
 
