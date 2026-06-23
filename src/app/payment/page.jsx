@@ -18,9 +18,11 @@ function CheckoutForm() {
   const [clientSecret, setClientSecret] = useState("");
   const [processing, setProcessing] = useState(false);
 
+  const baseUrl = process.env.NEXT_PUBLIC_URL;
+
   useEffect(() => {
     const createIntent = async () => {
-      const res = await fetch("http://localhost:5000/api/create-payment-intent", {
+      const res = await fetch(`${baseUrl}/api/create-payment-intent`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
@@ -49,7 +51,7 @@ function CheckoutForm() {
     }
 
     if (paymentIntent.status === "succeeded") {
-      await fetch("http://localhost:5000/api/payment-success", {
+      await fetch(`${baseUrl}/api/payment-success`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

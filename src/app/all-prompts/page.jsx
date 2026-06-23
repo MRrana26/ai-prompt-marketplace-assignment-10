@@ -7,17 +7,21 @@ import { Copy, Star, ShieldCheck, Search, SlidersHorizontal, Eye } from "lucide-
 import { Button } from "@heroui/react";
 import { getAllPrompts } from "@/lib/api/prompts";
 import { authClient } from "@/lib/auth-client";
+import { useSearchParams } from "next/navigation";
 
 const AllPromptsHomePage = () => {
     const [prompts, setPrompts] = useState([]);
     const [loading, setLoading] = useState(true);
     const { data: session } = authClient.useSession();
 
-    const [searchQuery, setSearchQuery] = useState('');
     const [selectedEngine, setSelectedEngine] = useState('All');
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [selectedDifficulty, setSelectedDifficulty] = useState('All');
     const [sortBy, setSortBy] = useState('Latest');
+
+    const searchParams = useSearchParams();
+
+    const [searchQuery, setSearchQuery] = useState(() => searchParams.get("search") || '');
 
     useEffect(() => {
         const fetchPromptsData = async () => {
@@ -128,8 +132,8 @@ const AllPromptsHomePage = () => {
                                         key={engine}
                                         onClick={() => setSelectedEngine(engine)}
                                         className={`text-left text-xs px-3 py-2 rounded-lg transition-all ${selectedEngine === engine
-                                                ? 'bg-purple-950/40 text-purple-400 font-semibold border border-purple-900/50'
-                                                : 'text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-200'
+                                            ? 'bg-purple-950/40 text-purple-400 font-semibold border border-purple-900/50'
+                                            : 'text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-200'
                                             }`}
                                     >
                                         {engine}
@@ -147,8 +151,8 @@ const AllPromptsHomePage = () => {
                                         key={cat}
                                         onClick={() => setSelectedCategory(cat)}
                                         className={`text-left text-xs px-3 py-2 rounded-lg transition-all ${selectedCategory === cat
-                                                ? 'bg-purple-950/40 text-purple-400 font-semibold border border-purple-900/50'
-                                                : 'text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-200'
+                                            ? 'bg-purple-950/40 text-purple-400 font-semibold border border-purple-900/50'
+                                            : 'text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-200'
                                             }`}
                                     >
                                         {cat}
@@ -166,8 +170,8 @@ const AllPromptsHomePage = () => {
                                         key={diff}
                                         onClick={() => setSelectedDifficulty(diff)}
                                         className={`text-left text-xs px-3 py-2 rounded-lg transition-all ${selectedDifficulty === diff
-                                                ? 'bg-purple-950/40 text-purple-400 font-semibold border border-purple-900/50'
-                                                : 'text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-200'
+                                            ? 'bg-purple-950/40 text-purple-400 font-semibold border border-purple-900/50'
+                                            : 'text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-200'
                                             }`}
                                     >
                                         {diff}
@@ -188,8 +192,8 @@ const AllPromptsHomePage = () => {
                                         key={tab}
                                         onClick={() => setSortBy(tab)}
                                         className={`text-xs px-4 py-1.5 rounded-lg font-medium transition-all ${sortBy === tab
-                                                ? 'bg-zinc-800 text-white border border-zinc-700/60'
-                                                : 'text-zinc-400 hover:text-zinc-200'
+                                            ? 'bg-zinc-800 text-white border border-zinc-700/60'
+                                            : 'text-zinc-400 hover:text-zinc-200'
                                             }`}
                                     >
                                         {tab}
@@ -281,7 +285,7 @@ const AllPromptsHomePage = () => {
                                                         by <span className="text-zinc-400">{(prompt.creatorEmail || prompt.userEmail)?.split("@")[0]}</span>
                                                     </span>
 
-                                                    <Link href={session ? `/prompts/${prompt._id}` : "/login"} className="shrink-0">
+                                                    <Link href={session ? `/prompts/${prompt._id}` : "/auth/login"} className="shrink-0">
                                                         <Button className="text-xs font-bold bg-zinc-800/80 hover:bg-purple-600 hover:text-white text-zinc-200 px-4 py-2 rounded-xl border border-zinc-700/60 transition-all flex items-center gap-1.5">
                                                             <Eye className="h-3.5 w-3.5" /> View Details
                                                         </Button>

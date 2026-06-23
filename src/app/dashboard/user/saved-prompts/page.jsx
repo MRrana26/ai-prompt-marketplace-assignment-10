@@ -1,26 +1,36 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Eye, Trash2, Layers, Bookmark } from "lucide-react";
-
-const initialSavedPrompts = [
-  {
-    id: "1",
-    title: "Optimized React Tailwind Code Builder",
-    description: "Generates production-grade, responsive React components using modern Tailwind...",
-    aiEngine: "CHATGPT",
-    category: "CODING",
-  },
-  
-];
+import { getSavedPrompts, toggleBookmark } from "@/lib/api/prompts";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 export default function UserSavedPromptsHomePage() {
-  const [savedPrompts, setSavedPrompts] = useState(initialSavedPrompts);
+  const [savedPrompts, setSavedPrompts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
+  const router = useRouter();
 
-  const handleRemoveBookmark = (id) => {
-    setSavedPrompts((prev) => prev.filter((item) => item.id !== id));
-    console.log(`Removed template ID: ${id} from bookmarks.`);
+  useEffect(() => {
+    const load = async () => {
+      if (!user?.email) return;
+      const data = await getSavedPrompts(user.email);
+      setSavedPrompts(data);
+      setLoading(false);
+    };
+    load();
+  }, [user]);
+
+  const handleRemoveBookmark = async (promptId) => {
+    const result = await toggleBookmark(promptId, user.email);
+    if (result) {
+      toast.success("Bookmark removed!");
+      setSavedPrompts(prev => prev.filter(p => p._id !== promptId));
+    }
   };
 
   const getEngineBadgeStyle = (engine) => {
@@ -33,10 +43,16 @@ export default function UserSavedPromptsHomePage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="w-full bg-zinc-950 text-zinc-100 min-h-screen flex items-center justify-center">
+        <span className="animate-pulse text-zinc-400 font-medium">Loading saved prompts...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full bg-zinc-950 text-zinc-100 p-6 min-h-screen">
-      
-      {/* Header Titles */}
       <div className="mb-6 max-w-7xl mx-auto">
         <h1 className="text-2xl font-bold tracking-tight text-zinc-100">Saved Prompt Templates</h1>
         <p className="text-sm text-zinc-400 mt-1">Browse your bookmarked templates and parameters.</p>
@@ -44,37 +60,30 @@ export default function UserSavedPromptsHomePage() {
 
       <div className="max-w-7xl mx-auto">
         {savedPrompts.length === 0 ? (
-          
-
           <div className="w-full border border-zinc-800/80 rounded-2xl bg-zinc-900/20 py-20 px-6 flex flex-col items-center justify-center text-center shadow-xl backdrop-blur-xs">
             <div className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-500 mb-5 relative">
               <Layers className="size-10" />
               <Bookmark className="size-4 text-purple-500 absolute -top-1 -right-1" />
             </div>
-            
             <h2 className="text-xl font-bold text-zinc-200 tracking-wide">No bookmarked prompts</h2>
             <p className="text-sm text-zinc-500 max-w-sm mt-1.5 leading-relaxed">
               Browse the marketplace and bookmark items to build your private collection.
             </p>
-
-            <Link 
-              href="/dashboard/user/prompts"
+            <Link
+              href="/all-prompts"
               className="mt-6 px-6 py-2.5 bg-purple-600 text-white text-sm font-bold rounded-xl hover:bg-purple-500 active:scale-[0.98] transition-all cursor-pointer shadow-md shadow-purple-900/20"
             >
               Browse Prompts
             </Link>
           </div>
-
         ) : (
-          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {savedPrompts.map((item) => (
-              <div 
-                key={item.id} 
+              <div
+                key={item._id}
                 className="w-full bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-5 shadow-xl flex flex-col justify-between hover:border-zinc-700/60 transition-all group"
               >
                 <div>
-                  {/* Category & AI Engine Tags Row */}
                   <div className="flex items-center gap-2 flex-wrap mb-4">
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold border uppercase tracking-wider ${getEngineBadgeStyle(item.aiEngine)}`}>
                       {item.aiEngine}
@@ -84,31 +93,26 @@ export default function UserSavedPromptsHomePage() {
                     </span>
                   </div>
 
-                  {/* Prompt Card Title */}
                   <h3 className="text-base font-bold text-zinc-100 tracking-wide line-clamp-2 min-h-[3rem] leading-snug group-hover:text-purple-400 transition-colors">
                     {item.title}
                   </h3>
 
-                  {/* Card Description Paragraph */}
                   <p className="text-xs md:text-sm text-zinc-400 line-clamp-2 leading-relaxed mt-2 mb-6">
-                    {item.description}
+                    {item.shortDescription}
                   </p>
                 </div>
 
-                {/* Bottom Card Actions Row */}
                 <div className="flex items-center gap-2 border-t border-zinc-800/60 pt-4">
-                  {/* View Details Button */}
-                  <button 
-                    onClick={() => console.log(`Viewing Details of: ${item.id}`)}
+                  <button
+                    onClick={() => router.push(`/prompts/${item._id}`)}
                     className="flex-1 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer shadow-md shadow-purple-900/10"
                   >
                     <Eye className="size-4" />
                     <span>View Details</span>
                   </button>
 
-                  {/* Remove/Delete Bookmark Button */}
-                  <button 
-                    onClick={() => handleRemoveBookmark(item.id)}
+                  <button
+                    onClick={() => handleRemoveBookmark(item._id)}
                     className="p-2.5 rounded-xl bg-red-950/20 border border-red-900/30 text-red-400/90 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
                     title="Remove Bookmark"
                   >
@@ -118,7 +122,6 @@ export default function UserSavedPromptsHomePage() {
               </div>
             ))}
           </div>
-
         )}
       </div>
     </div>

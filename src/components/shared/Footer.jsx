@@ -72,7 +72,7 @@ export default function Footer() {
                                 </Link>
                             </li>
                             <li>
-                                <Link href={"/premium"} className="hover:text-purple-400 transition-colors flex items-center gap-1">
+                                <Link href={"/payment"} className="hover:text-purple-400 transition-colors flex items-center gap-1">
                                 Premium Plan 
                                 <span className="text-[10px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/20">
                                 $5
