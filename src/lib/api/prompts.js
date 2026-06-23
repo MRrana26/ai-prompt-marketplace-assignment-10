@@ -158,3 +158,9 @@ export const getSavedPrompts = async (userEmail) => {
   if (!res.ok) return [];
   return await res.json();
 };
+
+export const getUserReviews = async (userEmail) => {
+  const res = await fetch(`${baseUrl}/api/reviews/${userEmail}`, { cache: "no-store" });
+  if (!res.ok) return [];
+  return await res.json();
+};
