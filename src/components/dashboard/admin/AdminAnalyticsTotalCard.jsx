@@ -23,7 +23,7 @@ export default function AdminAnalyticsTotalCard({ stats }) {
     {
       id: "reviews",
       label: "Total Reviews",
-      value: 0,
+      value: stats?.totalReviews ?? "—",
       icon: MessageSquare,
       iconColor: "text-emerald-400 bg-emerald-950/40 border-emerald-900/50",
     },
@@ -37,7 +37,7 @@ export default function AdminAnalyticsTotalCard({ stats }) {
     {
       id: "revenue",
       label: "Total Revenue",
-      value: "$0.00",
+      value: stats?.totalRevenue ? `$${stats.totalRevenue}.00` : "$0.00",
       icon: DollarSign,
       iconColor: "text-rose-400 bg-rose-950/40 border-rose-900/50",
     },

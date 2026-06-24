@@ -45,18 +45,22 @@ export default function Footer() {
                             Marketplace
                         </h4>
                         <ul className="space-y-2.5 text-xs sm:text-sm">
+
+                            <li>
+                                <Link href={"/"} className="hover:text-purple-400 transition-colors">Home</Link>
+                            </li>
                             <li>
                                 <Link  href={"/all-prompts"} className="hover:text-purple-400 transition-colors">All Prompts</Link>
                             </li>
+
                             <li>
-                                <Link href={"/featured"} className="hover:text-purple-400 transition-colors">Trending Prompts</Link>
+                                <Link  href={"/reviews"} className="hover:text-purple-400 transition-colors">Reviews</Link>
                             </li>
+
                             <li>
-                                <Link href={"/categories"} className="hover:text-purple-400 transition-colors">AI Categories</Link>
+                                <Link  href={"/top-creator"} className="hover:text-purple-400 transition-colors">Top Creator</Link>
                             </li>
-                            <li>
-                                <Link href={"/leaderboard"} className="hover:text-purple-400 transition-colors">Top Engineering Leaders</Link>
-                            </li>
+                            
                         </ul>
                     </div>
 
@@ -68,7 +72,7 @@ export default function Footer() {
                         <ul className="space-y-2.5 text-xs sm:text-sm">
                             <li>
                                 <Link href={dashboardLink} className="hover:text-purple-400 transition-colors">
-                                Creator Dashboard
+                                Dashboard
                                 </Link>
                             </li>
                             <li>
