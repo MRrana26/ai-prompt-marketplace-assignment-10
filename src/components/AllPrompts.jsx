@@ -7,6 +7,7 @@ import { Copy, Star, ShieldCheck, Search, SlidersHorizontal, Eye } from "lucide-
 import { Button } from "@heroui/react";
 import { getAllPrompts } from "@/lib/api/prompts";
 import { authClient } from "@/lib/auth-client";
+import Image from 'next/image';
 
 const AllPromptsHomePage = ({ searchQuery = '' }) => {
 
@@ -237,9 +238,14 @@ const AllPromptsHomePage = ({ searchQuery = '' }) => {
                                                 {/* Card Header Media Simulation/Tags */}
                                                 <div className="flex items-center justify-between mb-4">
                                                     <div className="flex gap-2">
-                                                        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-purple-950/60 text-purple-400 border border-purple-950">
-                                                            {prompt.aiEngine}
-                                                        </span>
+                                                        <div className="flex justify-between items-center gap-4">
+                                                            <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700/50">
+                                                                {prompt.aiEngine}
+                                                            </span>
+                                                            <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700/50">
+                                                                {prompt.visibilityStatus}
+                                                            </span>
+                                                        </div>
                                                         {prompt.difficultyLevel && (
                                                             <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-md bg-zinc-800 text-zinc-400 uppercase tracking-wide">
                                                                 {prompt.difficultyLevel}
@@ -256,6 +262,16 @@ const AllPromptsHomePage = ({ searchQuery = '' }) => {
                                                 <h3 className="text-md font-bold text-zinc-100 group-hover:text-purple-400 transition-colors mb-2 line-clamp-1">
                                                     {prompt.title}
                                                 </h3>
+
+                                                <div className="relative overflow-hidden rounded-2xl border border-default-200 shadow-md hover:shadow-xl transition-all duration-300 group">
+                                                    <Image
+                                                        src={prompt.thumbnailUrl}
+                                                        alt="Prompt Thumbnail"
+                                                        width={300}
+                                                        height={180}
+                                                        className="w-full h-45 object-cover transition-transform duration-500 group-hover:scale-105"
+                                                    />
+                                                </div>
 
                                                 <p className="text-xs text-zinc-400 line-clamp-2 mb-4 leading-relaxed">
                                                     {prompt.shortDescription || "No description provided for this catalog template."}

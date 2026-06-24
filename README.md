@@ -30,6 +30,11 @@
 
 ## 🚀 Getting Started
 
+## Live Link client:
+https://ai-prompt-marketplace-assignment-10.vercel.app
+
+## Live Link server:
+https://ai-prompt-marketplace-server-assign.vercel.app
 
 
 First, run the development server:

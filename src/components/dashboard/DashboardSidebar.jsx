@@ -1,5 +1,5 @@
 "use client"
-import { Person, HouseFill, ChartLineArrowUp, Persons, SquareDashedText, CirclePlusFill, StarFill, ArrowUpRightFromSquare, CreditCard, Bug, BookOpen, FloppyDisk } from "@gravity-ui/icons";
+import { Person, HouseFill, Tachometer, ChartLineArrowUp, Persons, SquareDashedText, CirclePlusFill, StarFill,  CreditCard, Bug, BookOpen, FloppyDisk } from "@gravity-ui/icons";
 import { Avatar, Button, Drawer } from "@heroui/react";
 import { LayoutSideContentLeft } from '@gravity-ui/icons';
 import { authClient } from "@/lib/auth-client";
@@ -33,7 +33,7 @@ export function DashboardSidebar() {
   const creatorNavLinks = [
     { icon: HouseFill, href: "/", label: "Home" },
     { icon: Person, href: "/dashboard/creator", label: "My Profile" },
-    { icon: ArrowUpRightFromSquare, href: "/dashboard/creator/creator-home", label: "Creator Home" },
+    { icon: Tachometer, href: "/dashboard/creator/creator-home", label: "Creator Home" },
     { icon: CirclePlusFill, href: "/dashboard/creator/add-prompts", label: "Add Prompts" },
     { icon: BookOpen, href: "/dashboard/creator/my-prompts", label: "My Prompts" },
   ];

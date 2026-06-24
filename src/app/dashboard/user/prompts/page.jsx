@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { createPrompt } from "@/lib/actions/prompts";
 import { redirect } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { uploadImage } from "@/lib/api/imgbb";
 
 export default function UserPromptsHomePage() {
 
@@ -25,6 +26,15 @@ export default function UserPromptsHomePage() {
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [thumbnail, setThumbnail] = useState(null);
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setThumbnail(e.target.files[0]);
+    }
+  };
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,12 +61,23 @@ export default function UserPromptsHomePage() {
     try {
       const tagsArray = formData.tags ? formData.tags.split(",").map(tag => tag.trim()) : [];
 
+      let uploadedImageUrl = "https://placehold.co/600x400/png";
+      if (thumbnail) {
+        const url = await uploadImage(thumbnail);
+        if (url) {
+          uploadedImageUrl = url;
+        } else {
+          toast.error("Image upload failed!");
+          setIsSubmitting(false);
+          return;
+        }
+      }
       const res = await createPrompt({
         ...formData,
-        tags: tagsArray, 
+        tags: tagsArray,
         copyCount: 0,
         userEmail: user?.email,
-        thumbnailUrl: "https://placehold.co/600x400/png",
+        thumbnailUrl: uploadedImageUrl,
         status: "pending",
         createdAt: new Date().toISOString(),
       });
@@ -245,11 +266,19 @@ export default function UserPromptsHomePage() {
             <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">
               Thumbnail Image Upload
             </label>
-            <div className="w-full border-2 border-dashed border-zinc-800 hover:border-purple-500/50 rounded-xl p-6 bg-zinc-950/20 text-center flex flex-col items-center justify-center gap-2 transition-colors group cursor-not-allowed opacity-50">
-              <Upload className="size-6 text-zinc-500" />
-              <span className="text-zinc-200 font-bold tracking-wide">Click to choose a thumbnail image file</span>
+            <label className="w-full border-2 border-dashed border-zinc-800 hover:border-purple-500/50 rounded-xl p-6 bg-zinc-950/20 text-center flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors group">
+              <input
+                type="file"
+                accept="image/png, image/jpeg, image/webp"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <Upload className="size-6 text-zinc-500 group-hover:text-purple-400 transition-colors" />
+              <span className="text-zinc-200 font-bold tracking-wide">
+                {thumbnail ? thumbnail.name : "Click to choose a thumbnail image file"}
+              </span>
               <span className="text-xs text-zinc-500">Supports PNG, JPG, or WEBP (Max 2MB)</span>
-            </div>
+            </label>
           </div>
 
           <button

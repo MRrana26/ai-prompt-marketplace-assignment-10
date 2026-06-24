@@ -6,11 +6,12 @@ import { createPrompt } from "@/lib/actions/prompts";
 import { toast } from "sonner";
 import { redirect } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { uploadImage } from "@/lib/api/imgbb";
 
 export default function CreatorAddPromptsHomePage() {
 
   const { data: session, isPending } = authClient.useSession();
-      const user = session?.user;
+  const user = session?.user;
 
   const [formData, setFormData] = useState({
     title: "",
@@ -61,7 +62,14 @@ export default function CreatorAddPromptsHomePage() {
       let uploadedImageUrl = "https://placehold.co/600x400/png";
 
       if (thumbnail) {
-        console.log("Uploading file to hosting...", thumbnail.name);
+        const url = await uploadImage(thumbnail);
+        if (url) {
+          uploadedImageUrl = url;
+        } else {
+          toast.error("Image upload failed!");
+          setIsSubmitting(false);
+          return;
+        }
       }
 
       const tagsArray = formData.tags ? formData.tags.split(",").map(tag => tag.trim()) : [];
@@ -89,7 +97,7 @@ export default function CreatorAddPromptsHomePage() {
           tags: "",
         });
         setThumbnail(null);
-        
+
       }
     } catch (error) {
       console.error("Submission failed:", error);

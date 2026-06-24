@@ -7,6 +7,7 @@ import { Button } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { getFeaturedPrompts } from "@/lib/api/prompts";
 import { authClient } from "@/lib/auth-client";
+import Image from "next/image";
 
 export default function FeaturedPrompts() {
   const [prompts, setPrompts] = useState([]);
@@ -68,9 +69,14 @@ export default function FeaturedPrompts() {
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700/50">
+                  <div className="flex justify-between items-center gap-4">
+                    <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700/50">
                     {prompt.aiEngine}
                   </span>
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700/50">
+                    {prompt.visibilityStatus}
+                  </span>
+                  </div>
                   {prompt.visibilityStatus === "Private" && (
                     <span className="text-xs font-medium px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1">
                       <ShieldCheck className="h-3.5 w-3.5" /> Premium
@@ -81,6 +87,15 @@ export default function FeaturedPrompts() {
                 <h3 className="text-lg font-bold text-zinc-100 group-hover:text-purple-400 transition-colors mb-2 line-clamp-1">
                   {prompt.title}
                 </h3>
+                <div className="relative overflow-hidden rounded-2xl border border-default-200 shadow-md hover:shadow-xl transition-all duration-300 group">
+                  <Image
+                    src={prompt.thumbnailUrl}
+                    alt="Prompt Thumbnail"
+                    width={300}
+                    height={180}
+                    className="w-full h-45 object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
 
                 <p className="text-xs text-zinc-500 mb-6">
                   Category: <span className="text-zinc-400 font-medium">{prompt.category}</span>
