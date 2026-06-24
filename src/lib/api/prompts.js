@@ -164,3 +164,36 @@ export const getUserReviews = async (userEmail) => {
   if (!res.ok) return [];
   return await res.json();
 };
+
+
+
+
+export const updatePrompt = async (id, data) => {
+  const res = await fetch(`${baseUrl}/api/prompts/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) return null;
+  return await res.json();
+};
+
+export const deleteUserPrompt = async (id) => {
+  const res = await fetch(`${baseUrl}/api/prompts/${id}`, { method: "DELETE" });
+  if (!res.ok) return null;
+  return await res.json();
+};
+
+
+
+export const getPromptAnalytics = async (id) => {
+  const res = await fetch(`${baseUrl}/api/prompts/${id}/analytics`, { cache: "no-store" });
+  if (!res.ok) return null;
+  return await res.json();
+};
+
+export const getLatestReviews = async () => {
+  const res = await fetch(`${baseUrl}/api/reviews`, { cache: "no-store" });
+  if (!res.ok) return [];
+  return await res.json();
+};

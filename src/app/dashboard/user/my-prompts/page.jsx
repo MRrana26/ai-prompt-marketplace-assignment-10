@@ -1,9 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Eye, Edit3, BarChart2, Trash2, Lock, Globe, AlertCircle, Star } from "lucide-react";
-import { getUserPrompts } from "@/lib/api/prompts";
+import { Eye, Edit3, BarChart2, Trash2, Lock, Globe, AlertCircle, Star, X, Plus } from "lucide-react";
+
 import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { deleteUserPrompt, getUserPrompts, updatePrompt } from "@/lib/api/prompts";
+import { toast } from "sonner";
+
 
 
 export default function UserMyPromptsHomePage() {
@@ -11,6 +15,11 @@ export default function UserMyPromptsHomePage() {
   const [loading, setLoading] = useState(true);
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
+  const router = useRouter();
+  const [editPrompt, setEditPrompt] = useState(null);
+  const [editLoading, setEditLoading] = useState(false);
+
+
 
   useEffect(() => {
     const loadPrompts = async () => {
@@ -27,8 +36,27 @@ export default function UserMyPromptsHomePage() {
     loadPrompts();
   }, [user, isPending]);
 
-  const handleAction = (actionType, promptId) => {
-    console.log(`Action: ${actionType} on Prompt ID: ${promptId}`);
+  const handleAction = async (actionType, promptId) => {
+    if (actionType === "view") {
+      router.push(`/prompts/${promptId}`);
+    }
+    else if (actionType === "edit") {
+      const prompt = myPromptsData.find(p => p._id === promptId); // prompts → myPromptsData
+      setEditPrompt(prompt);
+    }
+    else if (actionType === "delete") {
+      if (!confirm("Are you sure you want to delete this prompt?")) return;
+      const result = await deleteUserPrompt(promptId);
+      if (result) {
+        toast.success("Prompt deleted!");
+        setMyPromptsData(prev => prev.filter(p => p._id !== promptId)); // map → filter
+      } else {
+        toast.error("Failed to delete prompt");
+      }
+    }
+    else if (actionType === "analytics") {
+      router.push(`/dashboard/user/analytics/${promptId}`);
+    }
   };
 
   if (loading) {
@@ -172,6 +200,102 @@ export default function UserMyPromptsHomePage() {
           </table>
         </div>
       </div>
+      {editPrompt && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-lg shadow-2xl">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-bold text-zinc-100">Edit Prompt</h3>
+              <button onClick={() => setEditPrompt(null)} className="text-zinc-500 hover:text-zinc-300">
+                <X className="size-5" />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1.5 block">Title</label>
+                <input
+                  value={editPrompt.title}
+                  onChange={(e) => setEditPrompt(prev => ({ ...prev, title: e.target.value }))}
+                  className="w-full bg-zinc-800/50 border border-zinc-700/50 focus:border-purple-500/50 focus:outline-none rounded-xl px-4 py-3 text-sm text-zinc-300"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1.5 block">Short Description</label>
+                <textarea
+                  value={editPrompt.shortDescription}
+                  onChange={(e) => setEditPrompt(prev => ({ ...prev, shortDescription: e.target.value }))}
+                  rows={2}
+                  className="w-full bg-zinc-800/50 border border-zinc-700/50 focus:border-purple-500/50 focus:outline-none rounded-xl px-4 py-3 text-sm text-zinc-300 resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1.5 block">Prompt Content</label>
+                <textarea
+                  value={editPrompt.contentTemplate}
+                  onChange={(e) => setEditPrompt(prev => ({ ...prev, contentTemplate: e.target.value }))}
+                  rows={4}
+                  className="w-full bg-zinc-800/50 border border-zinc-700/50 focus:border-purple-500/50 focus:outline-none rounded-xl px-4 py-3 text-sm text-zinc-300 resize-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1.5 block">Visibility</label>
+                  <select
+                    value={editPrompt.visibilityStatus}
+                    onChange={(e) => setEditPrompt(prev => ({ ...prev, visibilityStatus: e.target.value }))}
+                    className="w-full bg-zinc-800/50 border border-zinc-700/50 focus:border-purple-500/50 focus:outline-none rounded-xl px-4 py-3 text-sm text-zinc-300"
+                  >
+                    <option value="Public">Public</option>
+                    <option value="Private">Private</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1.5 block">Difficulty</label>
+                  <select
+                    value={editPrompt.difficultyLevel}
+                    onChange={(e) => setEditPrompt(prev => ({ ...prev, difficultyLevel: e.target.value }))}
+                    className="w-full bg-zinc-800/50 border border-zinc-700/50 focus:border-purple-500/50 focus:outline-none rounded-xl px-4 py-3 text-sm text-zinc-300"
+                  >
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={async () => {
+                  setEditLoading(true);
+                  const result = await updatePrompt(editPrompt._id, editPrompt);
+                  if (result) {
+                    toast.success("Prompt updated!");
+                    setMyPromptsData(prev => prev.map(p => p._id === editPrompt._id ? editPrompt : p));
+                    setEditPrompt(null);
+                  } else {
+                    toast.error("Failed to update");
+                  }
+                  setEditLoading(false);
+                }}
+                disabled={editLoading}
+                className="flex-1 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white text-sm font-semibold rounded-xl transition cursor-pointer"
+              >
+                {editLoading ? "Saving..." : "Save Changes"}
+              </button>
+              <button
+                onClick={() => setEditPrompt(null)}
+                className="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm font-semibold rounded-xl transition cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
