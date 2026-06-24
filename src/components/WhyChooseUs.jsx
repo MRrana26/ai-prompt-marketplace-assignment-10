@@ -28,7 +28,7 @@ const BENEFITS = [
 
 export default function WhyChooseUs() {
   const containerVariants = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: 0 }, 
     visible: {
       opacity: 1,
       transition: { staggerChildren: 0.12 }

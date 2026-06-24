@@ -101,7 +101,7 @@ export default function FeaturedPrompts() {
 
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs text-zinc-500 truncate">
-                    by <span className="text-zinc-400">{prompt.creatorEmail?.split("@")[0]}</span>
+                    by <span className="text-zinc-400">{(prompt.creatorEmail || prompt.userEmail)?.split("@")[0]}</span>
                   </span>
 
                   {session ? (

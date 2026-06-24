@@ -197,3 +197,10 @@ export const getLatestReviews = async () => {
   if (!res.ok) return [];
   return await res.json();
 };
+
+
+export const getTopCreators = async () => {
+  const res = await fetch(`${baseUrl}/api/top-creators`, { cache: "no-store" });
+  if (!res.ok) return [];
+  return await res.json();
+};
