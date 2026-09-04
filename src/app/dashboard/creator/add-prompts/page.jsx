@@ -32,13 +32,11 @@ export default function CreatorAddPromptsHomePage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setThumbnail(e.target.files[0]);
     }
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();

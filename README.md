@@ -30,8 +30,14 @@
 
 ## 🚀 Getting Started
 
-## Live Link client:
+## Front-End Live Link:
 https://ai-prompt-marketplace-assignment-10.vercel.app
+
+## Client Repository Link:
+https://github.com/MRrana26/ai-prompt-marketplace-assignment-10
+
+## Server Repository Link:
+https://github.com/MRrana26/ai-prompt-marketplace-server-assignment-10
 
 ## Live Link server:
 https://ai-prompt-marketplace-server-assign.vercel.app

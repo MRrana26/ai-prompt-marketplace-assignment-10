@@ -12,14 +12,15 @@ export const getUserPrompts = async (email) => {
   return await res.json();
 };
 
-
-
-
-
-
 export const getAllPrompts = async () => {
   const res = await fetch(`${baseUrl}/api/admin/prompts`, { cache: "no-store" });
   if (!res.ok) return [];
+  return await res.json();
+};
+
+export const getPublicPrompts = async (page = 1, limit = 6) => {
+  const res = await fetch(`${baseUrl}/api/prompts?page=${page}&limit=${limit}`, { cache: "no-store" });
+  if (!res.ok) return { prompts: [], total: 0 };
   return await res.json();
 };
 
@@ -41,18 +42,11 @@ export const deletePrompt = async (id) => {
   return await res.json();
 };
 
-
-
-
 export const getFeaturedPrompts = async () => {
   const res = await fetch(`${baseUrl}/api/featured-prompts`, { cache: "no-store" });
   if (!res.ok) return [];
   return await res.json();
 };
-
-
-
-
 
 export const getPromptById = async (id) => {
   try {
@@ -65,9 +59,6 @@ export const getPromptById = async (id) => {
     return null;
   }
 };
-
-
-
 
 export const incrementCopyCount = async (id) => {
   const res = await fetch(`${baseUrl}/api/prompts/${id}/copy`, {
@@ -103,9 +94,6 @@ export const checkBookmark = async (userEmail, promptId) => {
   return await res.json();
 };
 
-
-
-
 export const getAllReports = async () => {
   const res = await fetch(`${baseUrl}/api/admin/reports`, { cache: "no-store" });
   if (!res.ok) return [];
@@ -135,7 +123,6 @@ export const removePromptAndReport = async (promptId, reportId) => {
   return res.ok;
 };
 
-
 export const getReviews = async (id) => {
   const res = await fetch(`${baseUrl}/api/prompts/${id}/reviews`, { cache: "no-store" });
   if (!res.ok) return [];
@@ -152,7 +139,6 @@ export const submitReview = async (id, data) => {
   return await res.json();
 };
 
-
 export const getSavedPrompts = async (userEmail) => {
   const res = await fetch(`${baseUrl}/api/bookmarks/${userEmail}`, { cache: "no-store" });
   if (!res.ok) return [];
@@ -164,9 +150,6 @@ export const getUserReviews = async (userEmail) => {
   if (!res.ok) return [];
   return await res.json();
 };
-
-
-
 
 export const updatePrompt = async (id, data) => {
   const res = await fetch(`${baseUrl}/api/prompts/${id}`, {
@@ -184,8 +167,6 @@ export const deleteUserPrompt = async (id) => {
   return await res.json();
 };
 
-
-
 export const getPromptAnalytics = async (id) => {
   const res = await fetch(`${baseUrl}/api/prompts/${id}/analytics`, { cache: "no-store" });
   if (!res.ok) return null;
@@ -197,7 +178,6 @@ export const getLatestReviews = async () => {
   if (!res.ok) return [];
   return await res.json();
 };
-
 
 export const getTopCreators = async () => {
   const res = await fetch(`${baseUrl}/api/top-creators`, { cache: "no-store" });

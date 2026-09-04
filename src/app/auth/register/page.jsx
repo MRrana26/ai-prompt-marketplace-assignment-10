@@ -20,7 +20,6 @@ import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 
-
 const RegisterPage = () => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);

@@ -41,7 +41,7 @@ export default function UserMyPromptsHomePage() {
       router.push(`/prompts/${promptId}`);
     }
     else if (actionType === "edit") {
-      const prompt = myPromptsData.find(p => p._id === promptId); // prompts → myPromptsData
+      const prompt = myPromptsData.find(p => p._id === promptId);
       setEditPrompt(prompt);
     }
     else if (actionType === "delete") {

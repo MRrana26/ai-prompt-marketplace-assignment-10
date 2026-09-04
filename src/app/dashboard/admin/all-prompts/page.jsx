@@ -14,7 +14,7 @@ export default function AllPromptsHomePage() {
   useEffect(() => {
     const loadPrompts = async () => {
       const data = await getAllPrompts();
-      setPrompts(data);
+      setPrompts(data || []);
       setLoading(false);
     };
     loadPrompts();
